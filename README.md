@@ -1,2 +1,2 @@
-# GreenCart
-# GreenCart
+프로젝트 시작
+프론트엔드 폴더 기본 셋팅

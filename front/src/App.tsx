@@ -1,7 +1,14 @@
+import { Outlet } from "react-router-dom";
 import styled from "styled-components";
 
 function App() {
-    return <AppContainer>my-react</AppContainer>;
+    return (
+        <AppContainer>
+            <main>
+                <Outlet />
+            </main>
+        </AppContainer>
+    );
 }
 
 const AppContainer = styled.div`
