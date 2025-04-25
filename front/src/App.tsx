@@ -1,9 +1,12 @@
 import { Outlet } from "react-router-dom";
 import styled from "styled-components";
+import Header from "./components/Header/Header";
+import { colors } from "@/constants";
 
 function App() {
     return (
         <AppContainer>
+            <Header />
             <main>
                 <Outlet />
             </main>
@@ -16,7 +19,7 @@ const AppContainer = styled.div`
     justify-content: center;
     align-items: center;
     height: 100vh;
-    background-color: #f5f5f5;
+    background-color: ${colors.WHITE};
 `;
 
 export default App;
