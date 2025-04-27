@@ -1,26 +1,28 @@
 import { colors } from "@/constants";
 import { FiSearch } from "react-icons/fi";
+import { Link } from "react-router-dom";
 import styled from "styled-components";
 
 function Header() {
     return (
         <>
             <HeaderContainer>
-                <Logo href="/">GreenCart</Logo>
+                <Logo to="/">GreenCart</Logo>
                 <SearchContainer>
                     <SearchInput type="text" placeholder="찾고있는 상품이 있다면?" />
                     <SearchIcon />
                 </SearchContainer>
+
                 <UserMenu>
-                    <LoginButton href="/login">로그인</LoginButton>
-                    <SignupButton href="/signup">회원가입</SignupButton>
+                    <LoginButton to="/login">로그인</LoginButton>
+                    <SignupButton to="/signup">회원가입</SignupButton>
                 </UserMenu>
 
                 <NavMenu>
-                    <NavItem href="/best">베스트</NavItem>
-                    <NavItem href="/discount">할인·특가상품</NavItem>
-                    <NavItem href="/new">신상품</NavItem>
-                    <NavItem href="/event">이벤트</NavItem>
+                    <NavItem to="/best">베스트</NavItem>
+                    <NavItem to="/discount">할인·특가상품</NavItem>
+                    <NavItem to="/new">신상품</NavItem>
+                    <NavItem to="/event">이벤트</NavItem>
                 </NavMenu>
             </HeaderContainer>
         </>
@@ -36,15 +38,17 @@ const HeaderContainer = styled.header`
     align-items: center;
     justify-content: space-between;
     background-color: ${colors.WHITE};
+    padding: 0 30px;
 `;
 
-const Logo = styled.a`
-    font-weight: bold;
-    font-size: 1.8rem;
+const Logo = styled(Link)`
+    font-family: "Cinzel", serif;
     color: ${colors.GREEN_100};
     text-decoration: none;
     padding-bottom: 20px;
     padding-left: 30px;
+    font-size: 2.2rem;
+    font-weight: 600;
 `;
 
 const SearchContainer = styled.div`
@@ -53,7 +57,7 @@ const SearchContainer = styled.div`
     display: flex;
     position: relative;
     border-radius: 15px;
-    margin: 0 20px;
+    margin: 0 auto;
     align-items: center;
     border: 2px solid ${colors.GREEN_100};
 `;
@@ -82,7 +86,7 @@ const UserMenu = styled.div`
     display: flex;
 `;
 
-const LoginButton = styled.a`
+const LoginButton = styled(Link)`
     color: ${colors.GREEN_100};
     text-decoration: none;
     font-weight: 600;
@@ -91,7 +95,7 @@ const LoginButton = styled.a`
     cursor: pointer;
 `;
 
-const SignupButton = styled.a`
+const SignupButton = styled(Link)`
     color: ${colors.GREEN_100};
     text-decoration: none;
     font-weight: 600;
@@ -109,10 +113,9 @@ const NavMenu = styled.nav`
     display: flex;
     justify-content: center;
     gap: 70px;
-    padding: 12px 0;
 `;
 
-const NavItem = styled.a`
+const NavItem = styled(Link)`
     color: ${colors.BLACK_100};
     font-weight: 600;
     font-size: 1.3rem;
