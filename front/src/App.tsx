@@ -7,19 +7,21 @@ function App() {
     return (
         <AppContainer>
             <Header />
-            <main>
+            <MainContent>
                 <Outlet />
-            </main>
+            </MainContent>
         </AppContainer>
     );
 }
 
 const AppContainer = styled.div`
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+    position: relative;
+    min-height: 100vh;
     background-color: ${colors.WHITE};
+`;
+const MainContent = styled.main`
+    padding-top: 150px;
+    min-height: calc(100vh - 150px);
 `;
 
 export default App;

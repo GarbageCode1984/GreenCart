@@ -4,6 +4,7 @@ const colors = {
     WHITE: "#FFFFFF",
     GRAY_100: "#8f8c8d",
     GREEN_100: "#2ecc71",
+    GREEN_200: "#16ab55",
 };
 
 export { colors };

@@ -33,12 +33,12 @@ const HeaderContainer = styled.header`
     position: fixed;
     height: 100px;
     width: 100%;
-    top: 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
     background-color: ${colors.WHITE};
-    padding: 0 30px;
+    padding: 0 23px;
+    z-index: 1000;
 `;
 
 const Logo = styled(Link)`
@@ -46,7 +46,7 @@ const Logo = styled(Link)`
     color: ${colors.GREEN_100};
     text-decoration: none;
     padding-bottom: 20px;
-    padding-left: 30px;
+    padding-left: 25px;
     font-size: 2.2rem;
     font-weight: 600;
 `;
@@ -109,10 +109,11 @@ const NavMenu = styled.nav`
     position: fixed;
     top: 100px;
     width: 100%;
+    height: 5%;
     background-color: ${colors.WHITE};
     display: flex;
     justify-content: center;
-    gap: 70px;
+    gap: 60px;
 `;
 
 const NavItem = styled(Link)`
