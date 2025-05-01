@@ -4,6 +4,7 @@ import App from "./App.tsx";
 import React from "react";
 import { GlobalStyles } from "./style/GlobalStyles.ts";
 import MainPage from "./pages/MainPage/MainPage.tsx";
+import RegisterPage from "./pages/RegisterPage/RegisterPage.tsx";
 
 const router = createBrowserRouter([
     {
@@ -11,10 +12,14 @@ const router = createBrowserRouter([
         element: <App />,
         children: [
             {
-                path: "/",
+                index: true,
                 element: <MainPage />,
             },
         ],
+    },
+    {
+        path: "/register",
+        element: <RegisterPage />,
     },
 ]);
 

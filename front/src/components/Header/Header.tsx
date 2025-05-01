@@ -15,7 +15,7 @@ function Header() {
 
                 <UserMenu>
                     <LoginButton to="/login">로그인</LoginButton>
-                    <SignupButton to="/signup">회원가입</SignupButton>
+                    <SignupButton to="/register">회원가입</SignupButton>
                 </UserMenu>
 
                 <NavMenu>
@@ -47,7 +47,7 @@ const Logo = styled(Link)`
     text-decoration: none;
     padding-bottom: 20px;
     padding-left: 25px;
-    font-size: 2.2rem;
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
     font-weight: 600;
 `;
 
