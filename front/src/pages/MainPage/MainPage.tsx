@@ -1,7 +1,7 @@
 import Banner from "@/components/Banner/MainBanner";
 import CategoryProductSection from "@/components/CategoryProduct/CategoryProductSection";
 
-function MainPage() {
+const MainPage = () => {
     const categories = [
         { id: "category-a", name: "인기 상품 모음" },
         { id: "category-b", name: "최신 유행 스타일" },
@@ -17,6 +17,6 @@ function MainPage() {
             ))}
         </>
     );
-}
+};
 
 export default MainPage;

@@ -26,29 +26,29 @@ interface Product {
     id: string;
     name: string;
     imageUrl: string;
-    pirce: number;
+    price: number;
 }
 
 const localProductData: { [key: string]: Product[] } = {
     "category-a": [
-        { id: "a-prod-1", name: "인기 상품 1", imageUrl: catAImg1, pirce: 1000 },
-        { id: "a-prod-2", name: "인기 상품 2", imageUrl: catAImg2, pirce: 1500 },
-        { id: "a-prod-3", name: "인기 상품 3", imageUrl: catAImg3, pirce: 2000 },
-        { id: "a-prod-4", name: "인기 상품 4", imageUrl: catAImg4, pirce: 3000 },
-        { id: "a-prod-5", name: "인기 상품 5", imageUrl: catAImg5, pirce: 1000 },
+        { id: "a-prod-1", name: "인기 상품 1", imageUrl: catAImg1, price: 1000 },
+        { id: "a-prod-2", name: "인기 상품 2", imageUrl: catAImg2, price: 1500 },
+        { id: "a-prod-3", name: "인기 상품 3", imageUrl: catAImg3, price: 2000 },
+        { id: "a-prod-4", name: "인기 상품 4", imageUrl: catAImg4, price: 3000 },
+        { id: "a-prod-5", name: "인기 상품 5", imageUrl: catAImg5, price: 1000 },
     ],
     "category-b": [
-        { id: "b-prod-1", name: "최신 스타일 1", imageUrl: catBImg1, pirce: 15000 },
-        { id: "b-prod-2", name: "최신 스타일 2", imageUrl: catBImg2, pirce: 11000 },
+        { id: "b-prod-1", name: "최신 스타일 1", imageUrl: catBImg1, price: 15000 },
+        { id: "b-prod-2", name: "최신 스타일 2", imageUrl: catBImg2, price: 11000 },
     ],
     "category-c": [
-        { id: "c-prod-1", name: "친환경 제품 1", imageUrl: catCImg1, pirce: 12000 },
-        { id: "c-prod-2", name: "친환경 제품 2", imageUrl: catCImg2, pirce: 15000 },
+        { id: "c-prod-1", name: "친환경 제품 1", imageUrl: catCImg1, price: 12000 },
+        { id: "c-prod-2", name: "친환경 제품 2", imageUrl: catCImg2, price: 15000 },
     ],
-    "category-d": [{ id: "d-prod-1", name: "MD 추천 1", imageUrl: catDImg1, pirce: 25000 }],
+    "category-d": [{ id: "d-prod-1", name: "MD 추천 1", imageUrl: catDImg1, price: 25000 }],
 };
 
-function CategoryProductSection({ categoryId, categoryName }: CategoryProductSectionProps) {
+const CategoryProductSection = ({ categoryId, categoryName }: CategoryProductSectionProps) => {
     const [products, setProducts] = useState<Product[]>([]);
 
     useEffect(() => {
@@ -73,7 +73,7 @@ function CategoryProductSection({ categoryId, categoryName }: CategoryProductSec
                     <ProductItem key={product.id} to={`/products/${product.id}`}>
                         <ProductImage src={product.imageUrl} alt={product.name} />
                         <ProductName>{product.name}</ProductName>
-                        <ProductPrice>{product.pirce.toLocaleString()}원</ProductPrice>
+                        <ProductPrice>{product.price.toLocaleString()}원</ProductPrice>
                     </ProductItem>
                 ))}
             </ProductGrid>
@@ -81,7 +81,7 @@ function CategoryProductSection({ categoryId, categoryName }: CategoryProductSec
             <MoreButton to={`/category/${categoryId}`}>{categoryName} 전체 보기</MoreButton>
         </SectionContainer>
     );
-}
+};
 
 const SectionContainer = styled.section`
     max-width: 1200px;

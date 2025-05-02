@@ -4,7 +4,7 @@ import Header from "./components/Header/Header";
 import { colors } from "@/constants";
 import Footer from "./components/Footer/Footer";
 
-function App() {
+const App = () => {
     return (
         <AppContainer>
             <Header />
@@ -14,7 +14,7 @@ function App() {
             <Footer />
         </AppContainer>
     );
-}
+};
 
 const AppContainer = styled.div`
     position: relative;

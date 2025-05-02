@@ -3,7 +3,7 @@ import { FiSearch } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 
-function Header() {
+const Header = () => {
     return (
         <>
             <HeaderContainer>
@@ -27,7 +27,7 @@ function Header() {
             </HeaderContainer>
         </>
     );
-}
+};
 
 const HeaderContainer = styled.header`
     position: fixed;

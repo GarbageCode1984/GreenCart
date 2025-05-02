@@ -14,7 +14,7 @@ import bannerImage1 from "../../assets/banner/test1.jpg";
 import bannerImage2 from "../../assets/banner/test2.jpg";
 import bannerImage3 from "../../assets/banner/test3.jpg";
 
-function MainBanner() {
+const MainBanner = () => {
     const banners = [
         { id: 1, url: bannerImage1, name: "배너 이미지 1", description: "TEST1", link: "" },
         { id: 2, url: bannerImage2, name: "배너 이미지 2", description: "TEST2", link: "" },
@@ -47,7 +47,7 @@ function MainBanner() {
             </Swiper>
         </BannerContainer>
     );
-}
+};
 
 const BannerContainer = styled.div`
     width: 100%;
