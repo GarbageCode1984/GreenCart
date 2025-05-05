@@ -1,6 +1,7 @@
 // import { useState } from "react";
 
-import CustomButton from "@/components/Common/CustomButton";
+import CustomInput from "@/components/Common/CustomInput";
+import styled from "styled-components";
 
 const RegisterPage = () => {
     /* const [name, setname] = useState<string>("");
@@ -8,17 +9,22 @@ const RegisterPage = () => {
     const [password, setpassword] = useState<string>(""); */
 
     return (
-        <div>
-            Register
-            <CustomButton type="submit">비밀번호 재설정 이메일 발송</CustomButton>
-            <CustomButton size="small" type="submit">
-                회원가입
-            </CustomButton>
-            <CustomButton variant="secondary" size="small" type="submit">
-                회원가입
-            </CustomButton>
-        </div>
+        <Container>
+            <CustomInput type="text" placeholder="이름 입력" />
+            <CustomInput type="text" placeholder="이메일 입력" />
+            <CustomInput type="text" placeholder="비밀번호 입력" />
+            <CustomInput type="text" placeholder="비밀번호 확인" />
+        </Container>
     );
 };
+
+const Container = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    padding: 0 20px;
+`;
 
 export default RegisterPage;

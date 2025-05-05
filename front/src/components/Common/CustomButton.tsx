@@ -33,22 +33,32 @@ const variantStyles = {
         background-color: ${colors.GREEN_300};
         color: ${colors.WHITE};
         border: none;
+
+        &:active:not(:disabled) {
+            background-color: ${colors.GREEN_200};
+        }
     `,
+
     secondary: css`
         background-color: transparent;
         color: ${colors.BLUE_200};
         border: 1px solid ${colors.BLUE_100};
+
+        &:active:not(:disabled) {
+            background-color: ${colors.BLUE_50};
+        }
     `,
 };
 
 const StyledButton = styled.button<ButtonProps>`
-    border-radius: 4px;
     font-weight: bold;
     cursor: pointer;
-    transition: background-color 0.2s ease-in-out;
     text-align: center;
     display: inline-block;
     box-sizing: border-box;
+    margin-left: 10%;
+    margin-top: 10%;
+    transition: background-color 0.2s ease-in-out;
 
     ${({ size }) => sizeStyles[size || "medium"]}
     ${({ variant }) => variantStyles[variant || "primary"]};
