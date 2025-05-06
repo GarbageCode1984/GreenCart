@@ -35,10 +35,10 @@ const HeaderContainer = styled.header`
     width: 100%;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     background-color: ${colors.WHITE};
-    padding: 0 23px;
     z-index: 1000;
+    padding: 0 20px;
 `;
 
 const Logo = styled(Link)`
@@ -46,14 +46,13 @@ const Logo = styled(Link)`
     color: ${colors.GREEN_100};
     text-decoration: none;
     padding-bottom: 20px;
-    padding-left: 25px;
     font-size: clamp(1.5rem, 4vw, 2.5rem);
     font-weight: 600;
 `;
 
 const SearchContainer = styled.div`
     flex: 1;
-    max-width: 500px;
+    max-width: 600px;
     display: flex;
     position: relative;
     border-radius: 15px;
@@ -113,7 +112,7 @@ const NavMenu = styled.nav`
     background-color: ${colors.WHITE};
     display: flex;
     justify-content: center;
-    gap: 60px;
+    gap: 50px;
 `;
 
 const NavItem = styled(Link)`

@@ -3,14 +3,14 @@ import { forwardRef } from "react";
 import styled from "styled-components";
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-    placeholder?: string;
+    label?: string;
     error?: string;
 }
 
-const CustomInput = forwardRef<HTMLInputElement, InputProps>(({ placeholder, error, ...props }, ref) => {
+const CustomInput = forwardRef<HTMLInputElement, InputProps>(({ label, error, ...props }) => {
     return (
         <InputContainer>
-            <StyledInput ref={ref} placeholder={placeholder} {...props} />
+            <StyledInput placeholder={label} {...props} />
             {error && <ErrorMessage>{error}</ErrorMessage>}
         </InputContainer>
     );

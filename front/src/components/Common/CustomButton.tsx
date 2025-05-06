@@ -17,14 +17,18 @@ const CustomButton = ({ children, size = "medium", variant = "primary", ...props
 
 const sizeStyles = {
     small: css`
-        padding: 10px 12px;
+        padding: 8px 12px;
         font-size: 0.9rem;
-        width: 10%;
+        width: 130px;
+        max-width: 50%;
+        height: 50px;
     `,
     medium: css`
-        padding: 12px 18px;
+        padding: 12px 15px;
         font-size: 1rem;
-        width: 15%;
+        width: 380px;
+        max-width: 95%;
+        height: 60px;
     `,
 };
 
@@ -56,8 +60,6 @@ const StyledButton = styled.button<ButtonProps>`
     text-align: center;
     display: inline-block;
     box-sizing: border-box;
-    margin-left: 10%;
-    margin-top: 10%;
     transition: background-color 0.2s ease-in-out;
 
     ${({ size }) => sizeStyles[size || "medium"]}
