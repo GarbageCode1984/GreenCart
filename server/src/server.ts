@@ -3,6 +3,7 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import userRoutes from "./rotues/userRoutes";
 
 dotenv.config();
 const app = express();
@@ -19,6 +20,8 @@ mongoose
     .catch((err) => {
         console.log(err);
     });
+
+app.use("/api/users", userRoutes);
 
 app.get("/", (req, res) => {
     res.send("Hello World!");
