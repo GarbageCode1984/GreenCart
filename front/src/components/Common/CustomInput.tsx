@@ -7,10 +7,10 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
     error?: string;
 }
 
-const CustomInput = forwardRef<HTMLInputElement, InputProps>(({ label, error, ...props }) => {
+const CustomInput = forwardRef<HTMLInputElement, InputProps>(({ label, error, ...props }, ref) => {
     return (
         <InputContainer>
-            <StyledInput placeholder={label} {...props} />
+            <StyledInput placeholder={label} {...props} ref={ref} />
             {error && <ErrorMessage>{error}</ErrorMessage>}
         </InputContainer>
     );
