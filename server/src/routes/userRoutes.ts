@@ -14,7 +14,7 @@ router.post("/register", async (req: Request, res: Response) => {
         console.error("Register error:", error);
 
         if (error.code === 11000) {
-            return res.status(400).json({ error: "회원가입 실패", details: "이미 사용중인 이메일입니다." });
+            return res.status(400).json({ message: "이미 사용중인 이메일입니다." });
         }
 
         return res.status(500).json({ message: "회원가입 중 서버 오류가 발생했습니다.", error: error.message });
