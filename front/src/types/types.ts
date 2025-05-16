@@ -5,6 +5,11 @@ export interface RegisterFormData {
     confirmPassword: string;
 }
 
+export interface LoginFormData {
+    email: string;
+    password: string;
+}
+
 export interface ServerErrorResponseData {
     message: string;
     details?: string | string[];

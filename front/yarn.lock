@@ -1320,6 +1320,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"clsx@npm:^2.1.1":
+  version: 2.1.1
+  resolution: "clsx@npm:2.1.1"
+  checksum: 10c0/c4c8eb865f8c82baab07e71bfa8897c73454881c4f99d6bc81585aecd7c441746c1399d08363dc096c550cceaf97bd4ce1e8854e1771e9998d9f94c4fe075839
+  languageName: node
+  linkType: hard
+
 "color-convert@npm:^2.0.1":
   version: 2.0.1
   resolution: "color-convert@npm:2.0.1"
@@ -2069,6 +2076,7 @@ __metadata:
     react-icons: "npm:^5.5.0"
     react-router-dom: "npm:^7.5.3"
     react-swiper: "npm:^0.1.5"
+    react-toastify: "npm:^11.0.5"
     styled-components: "npm:^6.1.14"
     swiper: "npm:^11.2.6"
     typescript: "npm:~5.6.2"
@@ -2869,6 +2877,18 @@ __metadata:
   dependencies:
     object-assign: "npm:^2.0.0"
   checksum: 10c0/78ce599b658a63d3673eac56f8dcde3bc3d3c34b5591f5f5f3495430b0d17fdadd55536c5b710c6c89123e3f7a318e9c7ba9c1010ce153706eee66ab92001348
+  languageName: node
+  linkType: hard
+
+"react-toastify@npm:^11.0.5":
+  version: 11.0.5
+  resolution: "react-toastify@npm:11.0.5"
+  dependencies:
+    clsx: "npm:^2.1.1"
+  peerDependencies:
+    react: ^18 || ^19
+    react-dom: ^18 || ^19
+  checksum: 10c0/50f5b81323ebb1957b2efd0963fac24aa1407155d16ab756ffd6d0f42f8af17e796b3958a9fce13e9d1b945d6c3a5a9ebf13529478474d8a2af4bf1dd0db67d2
   languageName: node
   linkType: hard
 

@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { registerSchema } from "@/utils/validation/authSchemas";
+import { toast } from "react-toastify";
 
 const RegisterPage = () => {
     const {
@@ -20,12 +21,12 @@ const RegisterPage = () => {
     const handleRegister = async (data: RegisterFormData) => {
         try {
             await registerUser(data);
-            alert("회원가입 성공!");
+            toast.success("회원가입 성공!");
             navigate("/login");
         } catch (error) {
             const ErrorMessage = error.message || "알 수 없는 오류가 발생했습니다.";
 
-            alert(`회원가입 실패: ${ErrorMessage}`);
+            toast.error(`${ErrorMessage}`);
         }
     };
 
