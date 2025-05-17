@@ -6,6 +6,7 @@ import CustomInput from "@/components/Common/CustomInput";
 import CustomButton from "@/components/Common/CustomButton";
 import styled from "styled-components";
 import { colors } from "@/constants";
+import { loginUser } from "@/api/auth";
 
 const LoginPage = () => {
     const {
@@ -14,8 +15,12 @@ const LoginPage = () => {
         formState: { errors },
     } = useForm<LoginFormData>({ resolver: yupResolver(loginSchema) });
 
-    const handleLogin = async () => {
-        console.log("로그인");
+    const handleLogin = async (data: LoginFormData) => {
+        try {
+            await loginUser(data);
+        } catch (error) {
+            console.log(error);
+        }
     };
 
     return (
