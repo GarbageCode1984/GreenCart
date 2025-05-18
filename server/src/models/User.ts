@@ -1,5 +1,20 @@
-import mongoose from "mongoose";
+import mongoose, { Document } from "mongoose";
 import bcrypt from "bcrypt";
+
+export interface IUser {
+    name: string;
+    email: string;
+    password: string;
+    role: "user" | "admin" | "seller";
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+interface IUserDocument extends IUser, Document {
+    _id: mongoose.Types.ObjectId;
+    __v?: number;
+    comparePassword(plainPassword: string): Promise<boolean>;
+}
 
 const userSchema = new mongoose.Schema(
     {
@@ -35,10 +50,17 @@ userSchema.pre("save", async function (next) {
     try {
         const hashPassword = await bcrypt.hash(this.password, 12);
         this.password = hashPassword;
+        next();
     } catch (error: any) {
         next(error);
     }
 });
 
-const User = mongoose.model("User", userSchema);
+userSchema.methods.comparePassword = async function (plainPassword: string): Promise<boolean> {
+    let user = this;
+    const isMatch = await bcrypt.compare(plainPassword, user.password);
+    return isMatch;
+};
+
+const User = mongoose.model<IUserDocument>("User", userSchema);
 export default User;
