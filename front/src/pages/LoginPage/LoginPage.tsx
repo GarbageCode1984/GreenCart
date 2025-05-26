@@ -9,6 +9,7 @@ import { colors } from "@/constants";
 import { loginUser } from "@/api/auth";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { useAuthStore } from "@/store/useAuthStore";
 
 const LoginPage = () => {
     const {
@@ -18,6 +19,7 @@ const LoginPage = () => {
     } = useForm<LoginFormData>({ resolver: yupResolver(loginSchema) });
 
     const navigate = useNavigate();
+    const login = useAuthStore((state) => state.login);
 
     const handleLogin = async (data: LoginFormData) => {
         try {
@@ -26,6 +28,7 @@ const LoginPage = () => {
 
             localStorage.setItem("token", token);
             localStorage.setItem("user", JSON.stringify(user));
+            login(user);
 
             toast.success("로그인 성공!");
             navigate("/");

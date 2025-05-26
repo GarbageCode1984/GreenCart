@@ -1,9 +1,13 @@
 import { colors } from "@/constants";
+import { useAuthStore } from "@/store/useAuthStore";
+import { FaHeart, FaShoppingCart, FaTruck, FaUser } from "react-icons/fa";
 import { FiSearch } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 
 const Header = () => {
+    const { isAuth, userData, logout } = useAuthStore();
+
     return (
         <>
             <HeaderContainer>
@@ -12,19 +16,38 @@ const Header = () => {
                     <SearchInput type="text" placeholder="찾고있는 상품이 있다면?" />
                     <SearchIcon />
                 </SearchContainer>
-
-                <UserMenu>
-                    <LoginButton to="/login">로그인</LoginButton>
-                    <SignupButton to="/register">회원가입</SignupButton>
-                </UserMenu>
-
-                <NavMenu>
-                    <NavItem to="/best">베스트</NavItem>
-                    <NavItem to="/discount">할인·특가상품</NavItem>
-                    <NavItem to="/new">신상품</NavItem>
-                    <NavItem to="/event">이벤트</NavItem>
-                </NavMenu>
+                {!isAuth ? (
+                    <UserMenu>
+                        <LoginButton to="/login">로그인</LoginButton>
+                        <SignupButton to="/register">회원가입</SignupButton>
+                    </UserMenu>
+                ) : (
+                    <IconMenu>
+                        <IconButton to="/wishlist">
+                            <FaHeart />
+                            <IconText>관심상품</IconText>
+                        </IconButton>
+                        <IconButton to="/mypage">
+                            <FaUser />
+                            <IconText>마이페이지</IconText>
+                        </IconButton>
+                        <IconButton to="/cart">
+                            <FaShoppingCart />
+                            <IconText>장바구니</IconText>
+                        </IconButton>
+                        <IconButton to="/orders">
+                            <FaTruck />
+                            <IconText>주문배송조회</IconText>
+                        </IconButton>
+                    </IconMenu>
+                )}
             </HeaderContainer>
+            <NavContainer>
+                <NavItem to="/best">베스트</NavItem>
+                <NavItem to="/discount">할인·특가상품</NavItem>
+                <NavItem to="/new">신상품</NavItem>
+                <NavItem to="/event">이벤트</NavItem>
+            </NavContainer>
         </>
     );
 };
@@ -35,10 +58,11 @@ const HeaderContainer = styled.header`
     width: 100%;
     display: flex;
     align-items: center;
-    justify-content: center;
+    /* justify-content: center; */
     background-color: ${colors.WHITE};
     z-index: 1000;
     padding: 0 20px;
+    box-sizing: border-box;
 `;
 
 const Logo = styled(Link)`
@@ -51,22 +75,37 @@ const Logo = styled(Link)`
 `;
 
 const SearchContainer = styled.div`
-    flex: 1;
+    /* flex: 1; */
     max-width: 600px;
-    display: flex;
-    position: relative;
+    width: 100%;
+    /* display: flex; */
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    /* display: flex; */
+    /* position: relative; */
     border-radius: 15px;
     margin: 0 auto;
     align-items: center;
     border: 2px solid ${colors.GREEN_100};
+
+    @media (max-width: 768px) {
+        position: static;
+        left: auto;
+        transform: none;
+        width: 100%;
+        max-width: 100%;
+        margin-bottom: 10px;
+    }
 `;
 
 const SearchInput = styled.input`
-    flex: 1;
+    /* flex: 1; */
     padding: 16px 12px;
     border-radius: 15px;
     border: none;
     font-size: 1rem;
+    width: 100%;
     &:focus {
         outline: none;
     }
@@ -79,10 +118,35 @@ const SearchIcon = styled(FiSearch)`
     right: 8px;
     color: ${colors.GREEN_100};
     cursor: pointer;
+    transform: translateY(35%);
 `;
 
 const UserMenu = styled.div`
     display: flex;
+    position: absolute;
+    right: 1%;
+`;
+
+const IconMenu = styled.div`
+    display: flex;
+    position: absolute;
+    right: 1%;
+`;
+
+const IconButton = styled(Link)`
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    text-decoration: none;
+    color: ${colors.GREEN_300};
+    font-size: 1.2rem;
+    padding: 0 5px;
+`;
+
+const IconText = styled.p`
+    margin-top: 2px;
+    color: ${colors.GREEN_300};
+    font-size: 0.7rem;
 `;
 
 const LoginButton = styled(Link)`
@@ -104,7 +168,7 @@ const SignupButton = styled(Link)`
     cursor: pointer;
 `;
 
-const NavMenu = styled.nav`
+const NavContainer = styled.nav`
     position: fixed;
     top: 100px;
     width: 100%;
@@ -113,6 +177,8 @@ const NavMenu = styled.nav`
     display: flex;
     justify-content: center;
     gap: 50px;
+    z-index: 1000;
+    border-bottom: 1px solid ${colors.GRAY_100};
 `;
 
 const NavItem = styled(Link)`
