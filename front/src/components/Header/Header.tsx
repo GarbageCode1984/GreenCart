@@ -3,10 +3,18 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { FaHeart, FaShoppingCart, FaTruck, FaUser } from "react-icons/fa";
 import { FiSearch } from "react-icons/fi";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 import styled from "styled-components";
 
 const Header = () => {
-    const { isAuth, userData, logout } = useAuthStore();
+    const { isAuth, logout } = useAuthStore();
+
+    const handleLogout = () => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        logout();
+        toast.info("로그아웃 되었습니다.");
+    };
 
     return (
         <>
@@ -39,6 +47,7 @@ const Header = () => {
                             <FaTruck />
                             <IconText>주문배송조회</IconText>
                         </IconButton>
+                        <Logout onClick={handleLogout}>로그아웃</Logout>
                     </IconMenu>
                 )}
             </HeaderContainer>
@@ -88,15 +97,6 @@ const SearchContainer = styled.div`
     margin: 0 auto;
     align-items: center;
     border: 2px solid ${colors.GREEN_100};
-
-    @media (max-width: 768px) {
-        position: static;
-        left: auto;
-        transform: none;
-        width: 100%;
-        max-width: 100%;
-        margin-bottom: 10px;
-    }
 `;
 
 const SearchInput = styled.input`
@@ -193,6 +193,17 @@ const NavItem = styled(Link)`
     &:hover {
         color: ${colors.GREEN_100};
     }
+`;
+
+const Logout = styled.button`
+    background: none;
+    color: ${colors.GREEN_200};
+    border: none;
+    padding-left: 3px;
+    font: inherit;
+    cursor: pointer;
+    outline: inherit;
+    font-size: 12px;
 `;
 
 export default Header;
