@@ -5,11 +5,7 @@ import { LoginFormData, RegisterFormData, ServerErrorResponseData } from "../typ
 
 export async function registerUser(data: RegisterFormData) {
     try {
-        const response = await axiosInstance.post("/users/register", {
-            name: data.name,
-            email: data.email,
-            password: data.password,
-        });
+        const response = await axiosInstance.post("/users/register", data);
         return response.data;
     } catch (error: unknown) {
         let errorMessage = "회원가입 중 알 수 없는 오류가 발생했습니다.";

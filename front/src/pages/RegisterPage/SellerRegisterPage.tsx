@@ -9,7 +9,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { registerSchema } from "@/utils/validation/authSchemas";
 import { toast } from "react-toastify";
 
-const RegisterPage = () => {
+const SellerRegisterPage = () => {
     const {
         register,
         handleSubmit,
@@ -20,7 +20,11 @@ const RegisterPage = () => {
 
     const handleRegister = async (data: RegisterFormData) => {
         try {
-            await registerUser(data);
+            const sellerData = {
+                ...data,
+                role: "seller",
+            };
+            await registerUser(sellerData);
             toast.success("회원가입 성공!");
             navigate("/login");
         } catch (error) {
@@ -48,7 +52,7 @@ const RegisterPage = () => {
                     error={errors.confirmPassword?.message}
                 />
             </InputForm>
-            <CustomButton type="submit">회원가입</CustomButton>
+            <CustomButton type="submit">판매자로 가입하기</CustomButton>
         </Container>
     );
 };
@@ -66,4 +70,4 @@ const InputForm = styled.div`
     margin-bottom: 25px;
 `;
 
-export default RegisterPage;
+export default SellerRegisterPage;

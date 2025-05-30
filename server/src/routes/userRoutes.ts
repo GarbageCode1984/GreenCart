@@ -5,10 +5,10 @@ import jwt from "jsonwebtoken";
 const router = express.Router();
 
 router.post("/register", async (req: Request, res: Response) => {
-    const { name, email, password } = req.body;
+    const { name, email, password, role } = req.body;
 
     try {
-        const newUser = new User({ name, email, password });
+        const newUser = new User({ name, email, password, role });
         await newUser.save();
         res.status(201).json({ message: "회원가입 성공" });
     } catch (error: any) {

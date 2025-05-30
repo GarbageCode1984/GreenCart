@@ -4,7 +4,7 @@ import App from "./App.tsx";
 import React from "react";
 import { GlobalStyles } from "./style/GlobalStyles.ts";
 import MainPage from "./pages/MainPage/MainPage.tsx";
-import RegisterPage from "./pages/RegisterPage/RegisterPage.tsx";
+import UserRegisterPage from "./pages/RegisterPage/UserRegisterPage.tsx";
 import { ToastContainer } from "react-toastify";
 import LoginPage from "./pages/LoginPage/LoginPage.tsx";
 import PrivateRoute from "./components/Auth/ProtectedRoute.tsx";
@@ -13,6 +13,7 @@ import MyPage from "./pages/MyPage/MyPage.tsx";
 import CartPage from "./pages/CartPage/CartPage.tsx";
 import WishlistPage from "./pages/WishlistPage/WishlistPage.tsx";
 import OrdersPage from "./pages/OrdersPage/OrdersPage.tsx";
+import SellerRegisterPage from "./pages/RegisterPage/SellerRegisterPage.tsx";
 
 const router = createBrowserRouter([
     {
@@ -29,7 +30,15 @@ const router = createBrowserRouter([
         path: "/register",
         element: (
             <NotAuthRoute>
-                <RegisterPage />
+                <UserRegisterPage />
+            </NotAuthRoute>
+        ),
+    },
+    {
+        path: "/sellerRegister",
+        element: (
+            <NotAuthRoute>
+                <SellerRegisterPage />
             </NotAuthRoute>
         ),
     },
