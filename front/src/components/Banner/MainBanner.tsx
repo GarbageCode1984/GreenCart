@@ -65,6 +65,7 @@ const ProductSlide = styled.div`
     -ms-user-select: none;
     user-select: none;
     -webkit-user-drag: none;
+    margin-top: 50px;
 `;
 
 const SlideImage = styled.img`

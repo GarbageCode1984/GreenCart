@@ -22,7 +22,6 @@ const AppContainer = styled.div`
     background-color: ${colors.WHITE};
 `;
 const MainContent = styled.main`
-    padding-top: 150px;
     min-height: calc(100vh - 150px);
 `;
 

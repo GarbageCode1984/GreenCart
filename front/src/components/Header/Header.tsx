@@ -1,13 +1,13 @@
 import { colors } from "@/constants";
 import { useAuthStore } from "@/store/useAuthStore";
-import { FaHeart, FaShoppingCart, FaTruck, FaUser } from "react-icons/fa";
+import { FaPlusSquare, FaHeart, FaShoppingCart, FaTruck, FaUser } from "react-icons/fa";
 import { FiSearch } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import styled from "styled-components";
 
 const Header = () => {
-    const { isAuth, logout } = useAuthStore();
+    const { isAuth, logout, userData } = useAuthStore();
 
     const handleLogout = () => {
         localStorage.removeItem("token");
@@ -15,6 +15,53 @@ const Header = () => {
         logout();
         toast.info("로그아웃 되었습니다.");
     };
+
+    const renderLoggedOutMenu = () => (
+        <UserMenu>
+            <LoginButton to="/login">로그인</LoginButton>
+            <SignupButton to="/register">회원가입</SignupButton>
+        </UserMenu>
+    );
+
+    const renderUserMenu = () => (
+        <IconMenu>
+            <IconButton to="/wishlist">
+                <FaHeart />
+                <IconText>관심상품</IconText>
+            </IconButton>
+            <IconButton to="/mypage">
+                <FaUser />
+                <IconText>마이페이지</IconText>
+            </IconButton>
+            <IconButton to="/cart">
+                <FaShoppingCart />
+                <IconText>장바구니</IconText>
+            </IconButton>
+            <IconButton to="/orders">
+                <FaTruck />
+                <IconText>주문배송조회</IconText>
+            </IconButton>
+            <Logout onClick={handleLogout}>로그아웃</Logout>
+        </IconMenu>
+    );
+
+    const renderSellerMenu = () => (
+        <IconMenu>
+            <IconButton to="/seller/mypage">
+                <FaUser />
+                <IconText>마이페이지</IconText>
+            </IconButton>
+            <IconButton to="/seller/add-product">
+                <FaPlusSquare />
+                <IconText>상품등록</IconText>
+            </IconButton>
+            <IconButton to="/seller/orders">
+                <FaTruck />
+                <IconText>주문관리</IconText>
+            </IconButton>
+            <Logout onClick={handleLogout}>로그아웃</Logout>
+        </IconMenu>
+    );
 
     return (
         <>
@@ -24,32 +71,7 @@ const Header = () => {
                     <SearchInput type="text" placeholder="찾고있는 상품이 있다면?" />
                     <SearchIcon />
                 </SearchContainer>
-                {!isAuth ? (
-                    <UserMenu>
-                        <LoginButton to="/login">로그인</LoginButton>
-                        <SignupButton to="/register">회원가입</SignupButton>
-                    </UserMenu>
-                ) : (
-                    <IconMenu>
-                        <IconButton to="/wishlist">
-                            <FaHeart />
-                            <IconText>관심상품</IconText>
-                        </IconButton>
-                        <IconButton to="/mypage">
-                            <FaUser />
-                            <IconText>마이페이지</IconText>
-                        </IconButton>
-                        <IconButton to="/cart">
-                            <FaShoppingCart />
-                            <IconText>장바구니</IconText>
-                        </IconButton>
-                        <IconButton to="/orders">
-                            <FaTruck />
-                            <IconText>주문배송조회</IconText>
-                        </IconButton>
-                        <Logout onClick={handleLogout}>로그아웃</Logout>
-                    </IconMenu>
-                )}
+                {!isAuth ? renderLoggedOutMenu() : userData?.role === "seller" ? renderSellerMenu() : renderUserMenu()}
             </HeaderContainer>
             <NavContainer>
                 <NavItem to="/best">베스트</NavItem>
@@ -62,45 +84,37 @@ const Header = () => {
 };
 
 const HeaderContainer = styled.header`
-    position: fixed;
+    position: relative;
     height: 100px;
     width: 100%;
     display: flex;
     align-items: center;
-    /* justify-content: center; */
-    background-color: ${colors.WHITE};
-    z-index: 1000;
+    background-color: ${colors.GREEN_100};
     padding: 0 20px;
     box-sizing: border-box;
 `;
 
 const Logo = styled(Link)`
     font-family: "Cinzel", serif;
-    color: ${colors.GREEN_100};
+    color: ${colors.WHITE};
     text-decoration: none;
-    padding-bottom: 20px;
+    padding-bottom: 15px;
     font-size: clamp(1.5rem, 4vw, 2.5rem);
     font-weight: 600;
 `;
 
 const SearchContainer = styled.div`
-    /* flex: 1; */
     max-width: 600px;
     width: 100%;
-    /* display: flex; */
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
-    /* display: flex; */
-    /* position: relative; */
     border-radius: 15px;
     margin: 0 auto;
     align-items: center;
-    border: 2px solid ${colors.GREEN_100};
 `;
 
 const SearchInput = styled.input`
-    /* flex: 1; */
     padding: 16px 12px;
     border-radius: 15px;
     border: none;
@@ -138,19 +152,19 @@ const IconButton = styled(Link)`
     align-items: center;
     flex-direction: column;
     text-decoration: none;
-    color: ${colors.GREEN_300};
+    color: ${colors.WHITE};
     font-size: 1.2rem;
     padding: 0 5px;
 `;
 
 const IconText = styled.p`
     margin-top: 2px;
-    color: ${colors.GREEN_300};
+    color: ${colors.WHITE};
     font-size: 0.7rem;
 `;
 
 const LoginButton = styled(Link)`
-    color: ${colors.GREEN_100};
+    color: ${colors.WHITE};
     text-decoration: none;
     font-weight: 600;
     padding: 6px 8px;
@@ -159,7 +173,7 @@ const LoginButton = styled(Link)`
 `;
 
 const SignupButton = styled(Link)`
-    color: ${colors.GREEN_100};
+    color: ${colors.WHITE};
     text-decoration: none;
     font-weight: 600;
     padding: 6px 8px;
@@ -169,16 +183,15 @@ const SignupButton = styled(Link)`
 `;
 
 const NavContainer = styled.nav`
-    position: fixed;
+    position: absolute;
     top: 100px;
     width: 100%;
-    height: 5%;
-    background-color: ${colors.WHITE};
+    height: 50px;
+    background-color: ${colors.GREEN_100};
     display: flex;
     justify-content: center;
     gap: 50px;
     z-index: 1000;
-    border-bottom: 1px solid ${colors.GRAY_100};
 `;
 
 const NavItem = styled(Link)`
@@ -191,13 +204,13 @@ const NavItem = styled(Link)`
     transition: all 0.3s;
 
     &:hover {
-        color: ${colors.GREEN_100};
+        color: ${colors.WHITE};
     }
 `;
 
 const Logout = styled.button`
     background: none;
-    color: ${colors.GREEN_200};
+    color: ${colors.WHITE};
     border: none;
     padding-left: 3px;
     font: inherit;

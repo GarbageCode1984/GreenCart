@@ -7,13 +7,17 @@ import MainPage from "./pages/MainPage/MainPage.tsx";
 import UserRegisterPage from "./pages/RegisterPage/UserRegisterPage.tsx";
 import { ToastContainer } from "react-toastify";
 import LoginPage from "./pages/LoginPage/LoginPage.tsx";
-import PrivateRoute from "./components/Auth/ProtectedRoute.tsx";
+import ProtectedRoute from "./components/Auth/ProtectedRoute.tsx";
+import SellerProtectedRoute from "./components/Auth/SellerProtectedRoute.tsx";
 import NotAuthRoute from "./components/Auth/NotAuthRoute.tsx";
 import MyPage from "./pages/MyPage/MyPage.tsx";
 import CartPage from "./pages/CartPage/CartPage.tsx";
 import WishlistPage from "./pages/WishlistPage/WishlistPage.tsx";
 import OrdersPage from "./pages/OrdersPage/OrdersPage.tsx";
 import SellerRegisterPage from "./pages/RegisterPage/SellerRegisterPage.tsx";
+import AddProduct from "./pages/SellerPage/AddProduct.tsx";
+import SellerOrdersPage from "./pages/SellerPage/SellerOrdersPage.tsx";
+import SellerMyPage from "./pages/SellerPage/SellerMyPage.tsx";
 
 const router = createBrowserRouter([
     {
@@ -53,33 +57,57 @@ const router = createBrowserRouter([
     {
         path: "/mypage",
         element: (
-            <PrivateRoute>
+            <ProtectedRoute>
                 <MyPage />
-            </PrivateRoute>
+            </ProtectedRoute>
         ),
     },
     {
         path: "/cart",
         element: (
-            <PrivateRoute>
+            <ProtectedRoute>
                 <CartPage />
-            </PrivateRoute>
+            </ProtectedRoute>
         ),
     },
     {
         path: "/wishlist",
         element: (
-            <PrivateRoute>
+            <ProtectedRoute>
                 <WishlistPage />
-            </PrivateRoute>
+            </ProtectedRoute>
         ),
     },
     {
         path: "/orders",
         element: (
-            <PrivateRoute>
+            <ProtectedRoute>
                 <OrdersPage />
-            </PrivateRoute>
+            </ProtectedRoute>
+        ),
+    },
+    {
+        path: "/seller/add-product",
+        element: (
+            <SellerProtectedRoute>
+                <AddProduct />
+            </SellerProtectedRoute>
+        ),
+    },
+    {
+        path: "/seller/orders",
+        element: (
+            <SellerProtectedRoute>
+                <SellerOrdersPage />
+            </SellerProtectedRoute>
+        ),
+    },
+    {
+        path: "/seller/mypage",
+        element: (
+            <SellerProtectedRoute>
+                <SellerMyPage />
+            </SellerProtectedRoute>
         ),
     },
 ]);
