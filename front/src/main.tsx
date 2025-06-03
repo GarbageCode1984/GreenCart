@@ -17,7 +17,6 @@ import OrdersPage from "./pages/OrdersPage/OrdersPage.tsx";
 import SellerRegisterPage from "./pages/RegisterPage/SellerRegisterPage.tsx";
 import AddProduct from "./pages/SellerPage/AddProduct.tsx";
 import SellerOrdersPage from "./pages/SellerPage/SellerOrdersPage.tsx";
-import SellerMyPage from "./pages/SellerPage/SellerMyPage.tsx";
 
 const router = createBrowserRouter([
     {
@@ -56,11 +55,7 @@ const router = createBrowserRouter([
     },
     {
         path: "/mypage",
-        element: (
-            <ProtectedRoute>
-                <MyPage />
-            </ProtectedRoute>
-        ),
+        element: <MyPage />,
     },
     {
         path: "/cart",
@@ -99,14 +94,6 @@ const router = createBrowserRouter([
         element: (
             <SellerProtectedRoute>
                 <SellerOrdersPage />
-            </SellerProtectedRoute>
-        ),
-    },
-    {
-        path: "/seller/mypage",
-        element: (
-            <SellerProtectedRoute>
-                <SellerMyPage />
             </SellerProtectedRoute>
         ),
     },

@@ -47,7 +47,7 @@ const Header = () => {
 
     const renderSellerMenu = () => (
         <IconMenu>
-            <IconButton to="/seller/mypage">
+            <IconButton to="/mypage">
                 <FaUser />
                 <IconText>마이페이지</IconText>
             </IconButton>
