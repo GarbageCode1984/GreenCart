@@ -1,6 +1,5 @@
 import axiosInstance from "@/utils/axois";
 import { AxiosError } from "axios";
-
 import { LoginFormData, RegisterFormData, ServerErrorResponseData } from "../types/types";
 
 export async function registerUser(data: RegisterFormData) {

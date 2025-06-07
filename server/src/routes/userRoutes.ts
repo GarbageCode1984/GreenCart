@@ -1,8 +1,13 @@
 import express, { Request, Response } from "express";
 import User from "../models/User";
 import jwt from "jsonwebtoken";
+import authMiddleware from "../middleware/auth";
 
 const router = express.Router();
+
+router.get("/auth", authMiddleware, async (req: Request, res: Response) => {
+    res.status(200).json({ message: "인증 성공" });
+});
 
 router.post("/register", async (req: Request, res: Response) => {
     const { name, email, password, role } = req.body;
@@ -24,8 +29,8 @@ router.post("/register", async (req: Request, res: Response) => {
 
 router.post("/login", async (req: Request, res: Response) => {
     const { email, password } = req.body;
-    const jwtSecret = process.env.JWT_SECRET;
 
+    const jwtSecret = process.env.JWT_SECRET;
     if (!jwtSecret) {
         console.error("Login Route Error: JWT_SECRET is not defined!");
         return res.status(500).json({ message: "서버 설정 오류가 발생했습니다." });
@@ -49,7 +54,6 @@ router.post("/login", async (req: Request, res: Response) => {
             email: user.email,
             role: user.role,
         };
-
         res.status(200).json({
             message: "로그인 성공",
             token: token,

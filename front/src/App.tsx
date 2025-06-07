@@ -17,12 +17,13 @@ const App = () => {
 };
 
 const AppContainer = styled.div`
-    position: relative;
+    display: flex;
+    flex-direction: column;
     min-height: 100vh;
     background-color: ${colors.WHITE};
 `;
 const MainContent = styled.main`
-    min-height: calc(100vh - 150px);
+    flex: 1;
 `;
 
 export default App;

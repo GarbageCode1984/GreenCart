@@ -7,16 +7,10 @@ import MainPage from "./pages/MainPage/MainPage.tsx";
 import UserRegisterPage from "./pages/RegisterPage/UserRegisterPage.tsx";
 import { ToastContainer } from "react-toastify";
 import LoginPage from "./pages/LoginPage/LoginPage.tsx";
-import ProtectedRoute from "./components/Auth/ProtectedRoute.tsx";
-import SellerProtectedRoute from "./components/Auth/SellerProtectedRoute.tsx";
 import NotAuthRoute from "./components/Auth/NotAuthRoute.tsx";
+import { userRoutes } from "./routes/userRoutes.tsx";
+import { sellerRoutes } from "./routes/sellerRoutes.tsx";
 import MyPage from "./pages/MyPage/MyPage.tsx";
-import CartPage from "./pages/CartPage/CartPage.tsx";
-import WishlistPage from "./pages/WishlistPage/WishlistPage.tsx";
-import OrdersPage from "./pages/OrdersPage/OrdersPage.tsx";
-import SellerRegisterPage from "./pages/RegisterPage/SellerRegisterPage.tsx";
-import AddProduct from "./pages/SellerPage/AddProduct.tsx";
-import SellerOrdersPage from "./pages/SellerPage/SellerOrdersPage.tsx";
 
 const router = createBrowserRouter([
     {
@@ -30,6 +24,10 @@ const router = createBrowserRouter([
         ],
     },
     {
+        path: "/mypage",
+        element: <MyPage />,
+    },
+    {
         path: "/register",
         element: (
             <NotAuthRoute>
@@ -37,14 +35,7 @@ const router = createBrowserRouter([
             </NotAuthRoute>
         ),
     },
-    {
-        path: "/sellerRegister",
-        element: (
-            <NotAuthRoute>
-                <SellerRegisterPage />
-            </NotAuthRoute>
-        ),
-    },
+
     {
         path: "/login",
         element: (
@@ -53,50 +44,8 @@ const router = createBrowserRouter([
             </NotAuthRoute>
         ),
     },
-    {
-        path: "/mypage",
-        element: <MyPage />,
-    },
-    {
-        path: "/cart",
-        element: (
-            <ProtectedRoute>
-                <CartPage />
-            </ProtectedRoute>
-        ),
-    },
-    {
-        path: "/wishlist",
-        element: (
-            <ProtectedRoute>
-                <WishlistPage />
-            </ProtectedRoute>
-        ),
-    },
-    {
-        path: "/orders",
-        element: (
-            <ProtectedRoute>
-                <OrdersPage />
-            </ProtectedRoute>
-        ),
-    },
-    {
-        path: "/seller/add-product",
-        element: (
-            <SellerProtectedRoute>
-                <AddProduct />
-            </SellerProtectedRoute>
-        ),
-    },
-    {
-        path: "/seller/orders",
-        element: (
-            <SellerProtectedRoute>
-                <SellerOrdersPage />
-            </SellerProtectedRoute>
-        ),
-    },
+    ...userRoutes,
+    ...sellerRoutes,
 ]);
 
 createRoot(document.getElementById("root")!).render(

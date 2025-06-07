@@ -25,11 +25,9 @@ const LoginPage = () => {
         try {
             const response = await loginUser(data);
             const { token, user } = response;
-
             localStorage.setItem("token", token);
             localStorage.setItem("user", JSON.stringify(user));
             login(user);
-
             toast.success("로그인 성공!");
             navigate("/");
         } catch (error) {
