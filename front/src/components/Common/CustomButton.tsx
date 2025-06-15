@@ -61,6 +61,7 @@ const StyledButton = styled.button<ButtonProps>`
     display: inline-block;
     box-sizing: border-box;
     transition: background-color 0.2s ease-in-out;
+    margin: 0 auto;
 
     ${({ size }) => sizeStyles[size || "medium"]}
     ${({ variant }) => variantStyles[variant || "primary"]};

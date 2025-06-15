@@ -1,39 +1,55 @@
 import { colors } from "@/constants";
 import { forwardRef } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
     label?: string;
     error?: string;
+    inputSize?: "medium" | "large";
 }
 
-const CustomInput = forwardRef<HTMLInputElement, InputProps>(({ label, error, ...props }, ref) => {
-    return (
-        <InputContainer>
-            <StyledInput placeholder={label} {...props} ref={ref} />
-            {error && <ErrorMessage>{error}</ErrorMessage>}
-        </InputContainer>
-    );
-});
+const CustomInput = forwardRef<HTMLInputElement, InputProps>(
+    ({ label, inputSize = "medium", error, ...props }, ref) => {
+        return (
+            <InputContainer>
+                <StyledInput placeholder={label} {...props} ref={ref} inputSize={inputSize} />
+                {error && <ErrorMessage>{error}</ErrorMessage>}
+            </InputContainer>
+        );
+    }
+);
 
 const InputContainer = styled.div`
     margin-bottom: 1rem;
     padding: 0 10px;
-    max-width: 400px;
+    max-width: 1200px;
     width: 100%;
 `;
 
-const StyledInput = styled.input`
-    padding: 12px 15px;
+const sizeStyles = {
+    medium: css`
+        height: 60px;
+        font-size: 1rem;
+        padding: 12px 15px;
+        width: 400px;
+    `,
+    large: css`
+        font-size: 1.1rem;
+        padding: 16px 20px;
+        width: 1200px;
+    `,
+};
+
+const StyledInput = styled.input<Pick<InputProps, "inputSize">>`
     border: 1px solid ${colors.GRAY_200};
     border-radius: 4px;
-    font-size: 1rem;
     box-sizing: border-box;
     color: ${colors.BLACK_100};
-    width: 400px;
+
     max-width: 100%;
-    height: 60px;
     max-height: 100%;
+
+    ${({ inputSize }) => inputSize && sizeStyles[inputSize]}
 
     &:focus {
         outline: none;
@@ -50,6 +66,7 @@ const StyledInput = styled.input`
 const ErrorMessage = styled.p`
     color: ${colors.RED_100};
     font-size: 0.85rem;
+    margin-top: 4px;
 `;
 
 export default CustomInput;

@@ -35,7 +35,6 @@ const router = createBrowserRouter([
             </NotAuthRoute>
         ),
     },
-
     {
         path: "/login",
         element: (
