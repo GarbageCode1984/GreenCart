@@ -64,7 +64,7 @@ const StyledInput = styled.input<Pick<InputProps, "inputSize">>`
 `;
 
 const ErrorMessage = styled.p`
-    color: ${colors.RED_100};
+    color: ${colors.RED};
     font-size: 0.85rem;
     margin-top: 4px;
 `;

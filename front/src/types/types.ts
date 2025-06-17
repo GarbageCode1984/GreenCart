@@ -22,8 +22,8 @@ export interface Product {
     price: number;
     description?: string;
     category?: string;
-    images?: FileList;
-    categoryId?: string;
+    images?: File[];
+    categoryId: string;
 }
 
 export interface Category {

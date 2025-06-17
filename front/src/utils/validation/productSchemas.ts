@@ -14,4 +14,8 @@ export const ProductSchema = yup.object().shape({
         .positive("판매가는 양수여야 합니다.")
         .integer("판매가는 정수여야 합니다.")
         .min(100, "판매가는 100원 이상이어야 합니다."),
+
+    categoryId: yup.string().required("카테고리를 선택해주세요."),
+
+    images: yup.array(yup.mixed()).nullable(),
 });
