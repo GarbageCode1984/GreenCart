@@ -4,9 +4,10 @@ import { colors } from "@/constants";
 import { Product } from "@/types/types";
 import { ProductSchema } from "@/utils/validation/productSchemas";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import styled from "styled-components";
+import { FileRejection, useDropzone } from "react-dropzone";
 
 const MAX_IMAGES = 5;
 
@@ -14,13 +15,65 @@ const AddProduct = () => {
     const {
         register,
         handleSubmit,
+        setValue,
         formState: { errors },
     } = useForm<Product>({ resolver: yupResolver(ProductSchema) });
 
-    const fileInputRef = useRef<HTMLInputElement>(null);
     const [ImageFiles, setImageFiles] = useState<File[]>([]);
-    const [previewImage, setPreviewImage] = useState<string[]>([]);
+    const [previewImageUrls, setPreviewImageUrls] = useState<string[]>([]);
     const [imageUploadError, setImageUploadError] = useState<string | null>(null);
+
+    useEffect(() => {
+        previewImageUrls.forEach((url) => URL.revokeObjectURL(url));
+
+        if (ImageFiles.length > 0) {
+            const urls = ImageFiles.map((file) => URL.createObjectURL(file));
+            setPreviewImageUrls(urls);
+
+            setValue("images", ImageFiles, { shouldValidate: true, shouldDirty: true });
+        } else {
+            setPreviewImageUrls([]);
+            setValue("images", undefined, { shouldValidate: true, shouldDirty: true });
+        }
+        setImageUploadError(null);
+    }, [ImageFiles, setValue, previewImageUrls]);
+
+    const onDrop = useCallback(
+        (acceptedFiles: File[], fileRejections: FileRejection[]) => {
+            if (ImageFiles.length >= MAX_IMAGES) {
+                setImageUploadError(`이미지는 최대 ${MAX_IMAGES}개까지만 업로드할 수 있습니다.`);
+                return;
+            }
+
+            if (fileRejections.length > 0) {
+                const rejectedTypes = fileRejections.map((rejection) => rejection.file.type || "알 수 없는");
+                setImageUploadError(`다음 파일 타입은 허용되지 않습니다: ${rejectedTypes.join(", ")}`);
+                return;
+            }
+
+            const newFiles = acceptedFiles.slice(0, MAX_IMAGES - ImageFiles.length);
+            const totalFiles = ImageFiles.length + newFiles.length;
+
+            if (totalFiles > MAX_IMAGES) {
+                setImageUploadError(`이미지는 최대 ${MAX_IMAGES}개까지만 업로드할 수 있습니다.`);
+                return;
+            }
+
+            setImageFiles((prevFiles) => [...prevFiles, ...newFiles]);
+            setImageUploadError(null);
+        },
+        [ImageFiles]
+    );
+
+    const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
+        onDrop,
+        accept: {
+            "image/*": [".jpg", ".jpeg", ".png", ".git", ".webp"],
+        },
+        maxFiles: MAX_IMAGES - ImageFiles.length,
+        noClick: true,
+        noKeyboard: true,
+    });
 
     const handleRegister: SubmitHandler<Product> = (data) => {
         console.log(data);
@@ -34,22 +87,6 @@ const AddProduct = () => {
         { id: "misc", name: "기타" },
         { id: "uncategorized", name: "분류 없음" },
     ];
-
-    const handleFileSelect = () => {
-        fileInputRef.current?.click();
-    };
-    const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
-        event.preventDefault();
-        event.stopPropagation();
-    };
-    const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
-        event.preventDefault();
-        event.stopPropagation();
-        if (event.dataTransfer.files) {
-            const newFiles = Array.from(event.dataTransfer.files);
-            const totalFiles = setImageFiles.length + newFiles.length;
-        }
-    };
 
     return (
         <ProductContainer>
