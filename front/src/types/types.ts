@@ -20,10 +20,9 @@ export interface ServerErrorResponseData {
 export interface Product {
     name: string;
     price: number;
-    description?: string;
-    category?: string;
-    images?: File[];
     categoryId: string;
+    description?: string | null;
+    images?: File[] | null;
 }
 
 export interface Category {

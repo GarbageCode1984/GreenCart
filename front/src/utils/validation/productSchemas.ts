@@ -16,6 +16,6 @@ export const ProductSchema = yup.object().shape({
         .min(100, "판매가는 100원 이상이어야 합니다."),
 
     categoryId: yup.string().required("카테고리를 선택해주세요."),
-
-    images: yup.array(yup.mixed()).nullable(),
+    description: yup.string().nullable().max(500, "설명은 500자를 초과할 수 없습니다."),
+    images: yup.array(yup.mixed<File>()).nullable().optional().max(5, "이미지는 최대 5개까지 업로드할 수 있습니다."),
 });

@@ -8,6 +8,7 @@ import { useCallback, useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import styled from "styled-components";
 import { FileRejection, useDropzone } from "react-dropzone";
+import CustomTextarea from "@/components/Common/CustomTextarea";
 
 const MAX_IMAGES = 5;
 
@@ -19,63 +20,76 @@ const AddProduct = () => {
         formState: { errors },
     } = useForm<Product>({ resolver: yupResolver(ProductSchema) });
 
-    const [ImageFiles, setImageFiles] = useState<File[]>([]);
-    const [previewImageUrls, setPreviewImageUrls] = useState<string[]>([]);
+    const [imageFiles, setImageFiles] = useState<File[]>([]);
     const [imageUploadError, setImageUploadError] = useState<string | null>(null);
 
+    const previewImageUrls = imageFiles.map((file) => URL.createObjectURL(file));
+
     useEffect(() => {
-        previewImageUrls.forEach((url) => URL.revokeObjectURL(url));
+        const urlsToRevoke = previewImageUrls;
 
-        if (ImageFiles.length > 0) {
-            const urls = ImageFiles.map((file) => URL.createObjectURL(file));
-            setPreviewImageUrls(urls);
+        setValue("images", imageFiles.length > 0 ? imageFiles : null, {
+            shouldValidate: true,
+            shouldDirty: true,
+        });
 
-            setValue("images", ImageFiles, { shouldValidate: true, shouldDirty: true });
-        } else {
-            setPreviewImageUrls([]);
-            setValue("images", undefined, { shouldValidate: true, shouldDirty: true });
-        }
-        setImageUploadError(null);
-    }, [ImageFiles, setValue, previewImageUrls]);
+        return () => {
+            urlsToRevoke.forEach((url: string) => URL.revokeObjectURL(url));
+        };
+    }, [imageFiles, setValue]);
 
     const onDrop = useCallback(
         (acceptedFiles: File[], fileRejections: FileRejection[]) => {
-            if (ImageFiles.length >= MAX_IMAGES) {
+            setImageUploadError(null);
+
+            if (imageFiles.length + acceptedFiles.length > MAX_IMAGES) {
                 setImageUploadError(`이미지는 최대 ${MAX_IMAGES}개까지만 업로드할 수 있습니다.`);
                 return;
             }
 
             if (fileRejections.length > 0) {
-                const rejectedTypes = fileRejections.map((rejection) => rejection.file.type || "알 수 없는");
+                const rejectedTypes = fileRejections.map((rejection) => rejection.file.type || "알 수 없음");
                 setImageUploadError(`다음 파일 타입은 허용되지 않습니다: ${rejectedTypes.join(", ")}`);
                 return;
             }
 
-            const newFiles = acceptedFiles.slice(0, MAX_IMAGES - ImageFiles.length);
-            const totalFiles = ImageFiles.length + newFiles.length;
+            const newValidFiles = acceptedFiles.filter(
+                (file) =>
+                    !imageFiles.some(
+                        (existingFile) => existingFile.name === file.name && existingFile.size === file.size
+                    )
+            );
 
-            if (totalFiles > MAX_IMAGES) {
-                setImageUploadError(`이미지는 최대 ${MAX_IMAGES}개까지만 업로드할 수 있습니다.`);
+            if (newValidFiles.length === 0 && acceptedFiles.length > 0) {
+                setImageUploadError("이미 존재하는 파일이거나 유효하지 않은 파일입니다.");
                 return;
             }
 
-            setImageFiles((prevFiles) => [...prevFiles, ...newFiles]);
-            setImageUploadError(null);
+            setImageFiles((prevFiles) => {
+                const combinedFiles = [...prevFiles, ...newValidFiles];
+                return combinedFiles.slice(0, MAX_IMAGES);
+            });
         },
-        [ImageFiles]
+        [imageFiles]
     );
 
     const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
         onDrop,
         accept: {
-            "image/*": [".jpg", ".jpeg", ".png", ".git", ".webp"],
+            "image/*": [".jpg", ".jpeg", ".png", ".gif", ".webp"],
         },
-        maxFiles: MAX_IMAGES - ImageFiles.length,
         noClick: true,
         noKeyboard: true,
+        noDrag: true,
+        maxFiles: MAX_IMAGES - imageFiles.length,
     });
 
-    const handleRegister: SubmitHandler<Product> = (data) => {
+    const handleImageRemove = (indexToRemove: number) => {
+        setImageFiles((prevFiles) => prevFiles.filter((_, index) => index !== indexToRemove));
+        setImageUploadError(null);
+    };
+
+    const handleAddProduct: SubmitHandler<Product> = (data) => {
         console.log(data);
     };
 
@@ -84,14 +98,15 @@ const AddProduct = () => {
         { id: "electronics", name: "전자제품" },
         { id: "books", name: "도서" },
         { id: "food", name: "식품" },
-        { id: "misc", name: "기타" },
         { id: "uncategorized", name: "분류 없음" },
     ];
+
+    const ImageUploadCount = imageFiles.length >= MAX_IMAGES;
 
     return (
         <ProductContainer>
             <Title>상품 등록 페이지</Title>
-            <Form onSubmit={handleSubmit(handleRegister)}>
+            <FormGroup onSubmit={handleSubmit(handleAddProduct)}>
                 <FormGroup>
                     <Label>상품명(필수)</Label>
                     <CustomInput {...register("name")} inputSize="large" error={errors.name?.message} />
@@ -121,17 +136,51 @@ const AddProduct = () => {
                 </FormGroup>
 
                 <FormGroup>
-                    <Label>상품 이미지 업로드(최대 {MAX_IMAGES}개)</Label>
+                    <Label>상품 설명 (선택 사항)</Label>
+                    <CustomTextarea
+                        {...register("description")}
+                        placeholder="상품에 대한 상세 설명을 입력해주세요."
+                        rows={6}
+                    />
+                    <br />
+                </FormGroup>
+
+                <FormGroup>
+                    <Label>상품 이미지 (선택 사항, 최대 {MAX_IMAGES}개)</Label>
                     <ImageUploaderContainer
-                        onClick={ImageFiles.length < MAX_IMAGES ? handleFileSelect : undefined}
-                        onDragOver={handleDragOver}
-                        onDrop={handleDrop}
-                    ></ImageUploaderContainer>
+                        {...getRootProps()}
+                        onClick={imageFiles.length < MAX_IMAGES ? open : undefined}
+                        error={!!errors.images || !!imageUploadError}
+                        isDragActive={isDragActive}
+                        isFull={imageFiles.length >= MAX_IMAGES}
+                    >
+                        <input {...getInputProps()} />
+                        {ImageUploadCount ? (
+                            <p>이미지가 최대 개수({MAX_IMAGES}개)에 도달했습니다.</p>
+                        ) : isDragActive ? (
+                            <p>여기에 이미지를 놓으세요...</p>
+                        ) : (
+                            <p>파일을 끌어다 놓거나 클릭하여 선택하세요.</p>
+                        )}
+                        {(errors.images && <ErrorMessage>{errors.images.message}</ErrorMessage>) ||
+                            (imageUploadError && <ErrorMessage>{imageUploadError}</ErrorMessage>)}
+                    </ImageUploaderContainer>
+
+                    {previewImageUrls.length > 0 && (
+                        <ImagePreviewContainer>
+                            {previewImageUrls.map((url, index) => (
+                                <ImageWrapper key={url}>
+                                    <PreviewImage src={url} alt={`상품 이미지 ${index + 1}`} />
+                                    <RemoveButton onClick={() => handleImageRemove(index)}>X</RemoveButton>
+                                </ImageWrapper>
+                            ))}
+                        </ImagePreviewContainer>
+                    )}
                 </FormGroup>
 
                 <br />
                 <CustomButton type="submit">상품 등록</CustomButton>
-            </Form>
+            </FormGroup>
         </ProductContainer>
     );
 };
@@ -147,12 +196,6 @@ const Title = styled.h1`
     font-size: 32px;
     text-align: center;
     margin-bottom: 5%;
-`;
-
-const Form = styled.form`
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
 `;
 
 const FormGroup = styled.div`
@@ -175,9 +218,9 @@ const StyledSelect = styled.select<{ error?: boolean }>`
     height: 40px;
     width: 100%;
     &:focus {
-        border-color: ${colors.BLUE_50};
+        border-color: ${colors.GREEN_100};
         outline: none;
-        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        box-shadow: 0 0 0 0.02rem rgba(67, 255, 117, 0.695);
     }
 `;
 
@@ -187,7 +230,7 @@ const ErrorMessage = styled.p`
     margin-top: 5px;
 `;
 
-const ImageUploaderContainer = styled.div<{ error?: boolean; isFull?: boolean }>`
+const ImageUploaderContainer = styled.div<{ error?: boolean; isFull?: boolean; isDragActive?: boolean }>`
     border: 2px dashed ${(props) => (props.error ? colors.RED : props.isFull ? colors.GRAY_100 : colors.GRAY_25)};
     border-radius: 8px;
     padding: 30px;
@@ -203,12 +246,62 @@ const ImageUploaderContainer = styled.div<{ error?: boolean; isFull?: boolean }>
     align-items: center;
 
     &:hover {
-        border-color: ${(props) => (props.isFull ? colors.GRAY_200 : colors.GREEN_100)};
+        border-color: ${(props) => (props.isFull ? colors.GRAY_100 : colors.GREEN_100)};
     }
 
     p {
-        color: ${(props) => (props.isFull ? "#999" : "#666")};
+        color: ${(props) => (props.isFull ? colors.WHITE_100 : colors.GRAY_200)};
         margin-bottom: 10px;
+    }
+`;
+
+const ImagePreviewContainer = styled.div`
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 20px;
+    width: 100%;
+    justify-content: flex-start;
+`;
+
+const ImageWrapper = styled.div`
+    position: relative;
+    width: 100px;
+    height: 100px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`;
+
+const PreviewImage = styled.img`
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+`;
+
+const RemoveButton = styled.button`
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    opacity: 0.8;
+    transition: opacity 0.2s ease;
+
+    &:hover {
+        opacity: 1;
     }
 `;
 
