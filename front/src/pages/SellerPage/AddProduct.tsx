@@ -6,7 +6,7 @@ import { Product, Category } from "@/types/types";
 import { ProductSchema } from "@/utils/validation/productSchemas";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useEffect } from "react";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { Resolver, SubmitHandler, useForm } from "react-hook-form";
 import styled from "styled-components";
 import { useImageUpload } from "@/hooks/useImageUpload";
 
@@ -26,7 +26,9 @@ const AddProduct = () => {
         handleSubmit,
         setValue,
         formState: { errors },
-    } = useForm<Product>({ resolver: yupResolver(ProductSchema) });
+    } = useForm<Product>({
+        resolver: yupResolver(ProductSchema) as unknown as Resolver<Product>,
+    });
 
     const {
         imageFiles,
