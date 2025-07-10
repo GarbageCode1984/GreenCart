@@ -1,4 +1,3 @@
-// src/hooks/useImageUpload.ts
 import { useState, useCallback, useEffect } from "react";
 import { FileRejection, useDropzone } from "react-dropzone";
 
