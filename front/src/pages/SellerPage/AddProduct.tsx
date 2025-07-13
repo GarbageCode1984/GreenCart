@@ -51,6 +51,20 @@ const AddProduct = () => {
 
     const handleAddProduct: SubmitHandler<Product> = async (data: Product) => {
         console.log("폼 데이터:", data);
+
+        const formData = new FormData();
+        formData.append("name", data.name);
+        formData.append("price", data.price.toString());
+        formData.append("categoryId", data.categoryId);
+        formData.append("description", data.description || "");
+
+        data.images?.forEach((file) => {
+            if (file instanceof File) {
+                formData.append("images", file);
+            }
+        });
+
+        // try catch 만들 차례
     };
 
     return (
@@ -185,9 +199,9 @@ const StyledSelect = styled.select<{ error?: boolean }>`
     background-color: ${colors.WHITE_100};
     cursor: pointer;
     &:focus {
-        border-color: ${colors.BLUE_50};
+        border-color: ${colors.GRAY_100};
         outline: none;
-        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        box-shadow: 0 0 0 0.1rem rgba(106, 248, 141, 0.59);
     }
 `;
 
