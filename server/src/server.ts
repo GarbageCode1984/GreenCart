@@ -4,6 +4,7 @@ import cors from "cors";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import userRoutes from "./routes/userRoutes";
+import productRoutes from "./routes/productRoutes";
 
 dotenv.config();
 
@@ -28,6 +29,7 @@ mongoose
     });
 
 app.use("/users", userRoutes);
+app.use("/products", productRoutes);
 
 app.listen(PORT, () => {
     console.log(`Example app listening on port ${PORT}`);
