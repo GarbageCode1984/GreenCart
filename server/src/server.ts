@@ -18,6 +18,7 @@ app.use(
     })
 );
 app.use(bodyParser.json());
+app.use("/uploads", express.static("uploads"));
 
 mongoose
     .connect(process.env.MONGO_URI!)

@@ -14,7 +14,7 @@ export const createProduct = async (data: FormData) => {
             if (serverResponseData?.message) {
                 errorMessage = serverResponseData.message;
             } else {
-                errorMessage = `로그인 실패: ${error.message}`;
+                errorMessage = `상품등록 실패: ${error.message}`;
             }
         } else if (error instanceof Error) {
             errorMessage = error.message;
