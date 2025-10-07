@@ -10,6 +10,7 @@ import { Resolver, SubmitHandler, useForm } from "react-hook-form";
 import styled from "styled-components";
 import { useImageUpload } from "@/hooks/useImageUpload";
 import { createProduct } from "@/api/products";
+import { useNavigate } from "react-router-dom";
 
 const MAX_IMAGES = 5;
 
@@ -30,6 +31,7 @@ const AddProduct = () => {
     } = useForm<Product>({
         resolver: yupResolver(ProductSchema) as unknown as Resolver<Product>,
     });
+    const navigate = useNavigate();
 
     const {
         imageFiles,
@@ -51,8 +53,6 @@ const AddProduct = () => {
     }, [imageFiles, setValue]);
 
     const handleAddProduct: SubmitHandler<Product> = async (data: Product) => {
-        console.log("폼 데이터:", data);
-
         const formData = new FormData();
         formData.append("name", data.name);
         formData.append("price", data.price.toString());
@@ -69,6 +69,7 @@ const AddProduct = () => {
             const result = await createProduct(formData);
             console.log("상품 등록 성공:", result);
             alert("상품이 성공적으로 등록되었습니다!");
+            navigate("/");
         } catch (error) {
             console.log("상품 등록 실패");
             alert(`상품 등록에 실패했습니다: ${error.message}`);

@@ -1,7 +1,7 @@
 import express, { NextFunction, Request, Response } from "express";
 import multer from "multer";
 import path from "path";
-import Product, { IProduct } from "../models/Product";
+import Product from "../models/Product";
 
 const router = express.Router();
 
