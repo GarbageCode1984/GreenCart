@@ -76,4 +76,18 @@ router.post("/create", upload.array("images", 5), async (req: CustomRequest, res
     }
 });
 
+router.get("/findAllProduct", async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const products = await Product.find({}).lean();
+        res.status(200).json({
+            message: "상품 목록을 불러왔습니다.",
+            products: products,
+            count: products.length,
+        });
+    } catch (error) {
+        console.error("상품 목록 조회 중 에러 발생:", error);
+        next(error);
+    }
+});
+
 export default router;
