@@ -35,7 +35,6 @@ const ProductListPage = () => {
     if (error) {
         return <ErrorMessage>데이터 로딩 실패: {error} 😥</ErrorMessage>;
     }
-
     if (products.length === 0) {
         return <NoProductMessage>등록된 상품이 없습니다. 텅 비어있네요! 😿</NoProductMessage>;
     }
