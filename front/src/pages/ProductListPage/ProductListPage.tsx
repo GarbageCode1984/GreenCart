@@ -47,9 +47,14 @@ const ProductListPage = () => {
             <ProductGrid>
                 {products.map((product) => (
                     <ProductCard key={product._id} onClick={() => navigate(`/products/${product._id}`)}>
-                        {product.images?.[0] && (
-                            <ProductImage src={`http://localhost:5000${product.images[0]}`} alt={product.name} />
-                        )}
+                        <ProductThumbnail>
+                            {product.images?.[0] ? (
+                                <ProductImage src={`http://localhost:5000${product.images[0]}`} alt={product.name} />
+                            ) : (
+                                <NoImagePlaceholder>No Image</NoImagePlaceholder>
+                            )}
+                        </ProductThumbnail>
+
                         <ProductInfo>
                             <h3 className="product-name">{product.name}</h3>
                             <ProductPrice>₩{product.price.toLocaleString()}</ProductPrice>
@@ -96,11 +101,30 @@ const ProductCard = styled.div`
     }
 `;
 
-const ProductImage = styled.img`
+const ProductThumbnail = styled.div`
     width: 100%;
     height: 250px;
+    overflow: hidden;
+    flex-shrink: 0;
+`;
+
+const ProductImage = styled.img`
+    width: 100%;
+    height: 100%;
     object-fit: cover;
     display: block;
+`;
+
+const NoImagePlaceholder = styled.div`
+    width: 100%;
+    height: 100%;
+    background-color: ${colors.GRAY_50};
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: ${colors.GRAY_100};
+    font-size: 1.2em;
+    font-weight: bold;
 `;
 
 const ProductInfo = styled.div`

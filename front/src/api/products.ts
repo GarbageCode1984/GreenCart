@@ -23,3 +23,15 @@ export const getAllProducts = async (): Promise<Product[]> => {
         throw new Error(errorMessage);
     }
 };
+
+export const getProductById = async (productId: string): Promise<Product> => {
+    try {
+        const response = await axiosInstance.get(`/products/${productId}`);
+        return response.data.product;
+    } catch (error) {
+        const errorMessage = getApiErrorMessage(error, "상품 상세 정보를 불러오는 데 실패했습니다.");
+
+        console.error(`상품 ID ${productId} 조회 API 호출 실패`, error);
+        throw new Error(errorMessage);
+    }
+};
