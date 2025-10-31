@@ -19,7 +19,7 @@ const ProductListPage = () => {
                 setProducts(data);
                 setError(null);
             } catch (error) {
-                setError((error as Error).message);
+                setError(error.message);
                 setProducts([]);
             } finally {
                 setIsLoading(false);

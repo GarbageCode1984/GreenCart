@@ -18,6 +18,7 @@ export interface ServerErrorResponseData {
 }
 
 export interface Product {
+    createdAt: string | number | Date;
     _id: string;
     name: string;
     price: number;

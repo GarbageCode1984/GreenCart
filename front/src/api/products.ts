@@ -1,4 +1,4 @@
-import axiosInstance from "@/utils/axois";
+import axiosInstance from "@/utils/axios";
 import { Product } from "@/types/types";
 import { getApiErrorMessage } from "@/utils/errorMessage";
 

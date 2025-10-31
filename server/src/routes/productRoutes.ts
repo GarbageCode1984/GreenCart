@@ -90,4 +90,24 @@ router.get("/findAllProduct", async (req: Request, res: Response, next: NextFunc
     }
 });
 
+router.get("/:id", async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const productId = req.params.id;
+
+        const product = await Product.findById(productId);
+
+        if (!product) {
+            return res.status(404).json({ message: "상품을 찾을 수 없습니다." });
+        }
+
+        res.status(200).json({
+            message: "상품 상세 정보를 불러왔습니다.",
+            product: product,
+        });
+    } catch (error) {
+        console.error(`상품 ID ${req.params.id} 상세 조회 중 에러 발생:`, error);
+        next(error);
+    }
+});
+
 export default router;

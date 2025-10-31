@@ -6,7 +6,7 @@ export interface IProduct {
     categoryId: string;
     description?: string;
     images: string[];
-    createdAt: Date;
+    createdAt: string | Date;
     updatedAt: Date;
 }
 

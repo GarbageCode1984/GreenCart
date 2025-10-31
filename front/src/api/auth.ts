@@ -1,4 +1,4 @@
-import axiosInstance from "@/utils/axois";
+import axiosInstance from "@/utils/axios";
 import { AxiosError } from "axios";
 import { LoginFormData, RegisterFormData, ServerErrorResponseData } from "../types/types";
 
