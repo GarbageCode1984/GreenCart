@@ -2,6 +2,7 @@ import express, { NextFunction, Request, Response } from "express";
 import multer from "multer";
 import path from "path";
 import Product from "../models/Product";
+import { AuthRequest, protect } from "../middleware/auth";
 
 const router = express.Router();
 
@@ -31,7 +32,7 @@ const upload = multer({
     limits: { fileSize: 5 * 1024 * 1024 },
 });
 
-interface CustomRequest extends Request {
+interface CustomRequest extends AuthRequest {
     body: {
         name: string;
         price: string;
@@ -41,40 +42,56 @@ interface CustomRequest extends Request {
     files?: Express.Multer.File[] | { [fieldname: string]: Express.Multer.File[] };
 }
 
-router.post("/create", upload.array("images", 5), async (req: CustomRequest, res: Response, next: NextFunction) => {
-    try {
-        const { name, price, categoryId, description } = req.body;
-        const images = req.files;
+router.post(
+    "/create",
+    protect,
+    upload.array("images", 5),
+    async (req: CustomRequest, res: Response, next: NextFunction) => {
+        try {
+            const sellerId = req.user?._id;
+            const sellerName = req.user?.name;
 
-        if (!name || !price || !categoryId) {
-            return res.status(400).json({ message: "상품명, 가격, 카테고리는 필수 항목입니다." });
+            if (!sellerId || !sellerName) {
+                return res.status(401).json({ message: "사용자 인증 정보가 누락되었습니다. 다시 로그인해주세요." });
+            }
+
+            const { name, price, categoryId, description } = req.body;
+            const images = req.files;
+
+            if (!name || !price || !categoryId) {
+                return res.status(400).json({ message: "상품명, 가격, 카테고리는 필수 항목입니다." });
+            }
+            if (isNaN(Number(price)) || Number(price) <= 0) {
+                return res.status(400).json({ message: "유효하지 않은 숫자입니다." });
+            }
+
+            const imageUrls = images
+                ? (images as Express.Multer.File[]).map((file) => `/uploads/${file.filename}`)
+                : [];
+
+            const newProduct = new Product({
+                name,
+                price: Number(price),
+                categoryId,
+                description,
+                images: imageUrls,
+                sellerId: sellerId,
+                sellerName: sellerName,
+            });
+
+            const createdProduct = await newProduct.save();
+
+            res.status(201).json({
+                message: "상품이 성공적으로 등록되었습니다!",
+                product: createdProduct,
+                filePaths: imageUrls,
+            });
+        } catch (error) {
+            console.error("상품 등록 처리 중 에러 발생", error);
+            next(error);
         }
-        if (isNaN(Number(price)) || Number(price) <= 0) {
-            return res.status(400).json({ message: "유효하지 않은 숫자입니다." });
-        }
-
-        const imageUrls = images ? (images as Express.Multer.File[]).map((file) => `/uploads/${file.filename}`) : [];
-
-        const newProduct = new Product({
-            name,
-            price: Number(price),
-            categoryId,
-            description,
-            images: imageUrls,
-        });
-
-        const createdProduct = await newProduct.save();
-
-        res.status(201).json({
-            message: "상품이 성공적으로 등록되었습니다!",
-            product: createdProduct,
-            filePaths: imageUrls,
-        });
-    } catch (error) {
-        console.error("상품 등록 처리 중 에러 발생", error);
-        next(error);
     }
-});
+);
 
 router.get("/findAllProduct", async (req: Request, res: Response, next: NextFunction) => {
     try {

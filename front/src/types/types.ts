@@ -25,6 +25,8 @@ export interface Product {
     categoryId: string;
     description?: string;
     images: (File | undefined)[] | null;
+    sellerId: string;
+    sellerName: string;
 }
 
 export interface Category {

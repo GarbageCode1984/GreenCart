@@ -1,16 +1,16 @@
 import mongoose, { Document } from "mongoose";
 import bcrypt from "bcrypt";
 
-export interface IUser {
+export interface User {
     name: string;
     email: string;
     password: string;
-    role: "user" | "seller";
+    role: "user" | "admin";
     createdAt: Date;
     updatedAt: Date;
 }
 
-interface IUserDocument extends IUser, Document {
+export interface UserDocument extends User, Document {
     _id: mongoose.Types.ObjectId;
     __v?: number;
     comparePassword(plainPassword: string): Promise<boolean>;
@@ -32,7 +32,7 @@ const userSchema = new mongoose.Schema(
         password: { type: String, required: true, minlength: 8, maxlength: 100, select: false },
         role: {
             type: String,
-            enum: ["user", "admin", "seller"],
+            enum: ["user", "admin"],
             default: "user",
             required: true,
         },
@@ -62,5 +62,5 @@ userSchema.methods.comparePassword = async function (plainPassword: string): Pro
     return isMatch;
 };
 
-const User = mongoose.model<IUserDocument>("User", userSchema);
+const User = mongoose.model<UserDocument>("User", userSchema);
 export default User;

@@ -1,14 +1,14 @@
 import { getProductById } from "@/api/products";
+import CustomButton from "@/components/Common/CustomButton";
 import { colors } from "@/constants";
 import { Product } from "@/types/types";
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import styled from "styled-components";
 
 const ProductDetailPage = () => {
     const { productId } = useParams<{ productId: string }>();
-    const navigate = useNavigate();
 
     const [product, setProduct] = useState<Product | null>(null);
     const [loading, setLoading] = useState(true);
@@ -60,12 +60,11 @@ const ProductDetailPage = () => {
     const handleImageChange = (index: number) => {
         setCurrentImageIndex(index);
     };
-    const handleAddToCart = () => {
-        toast.success(`${product.name} 상품이 장바구니에 담겼습니다!`);
+    const handleAddToWishlist = () => {
+        toast.success(`'${product.name}' 상품을 관심 목록에 등록했습니다!`);
     };
-    const handlePurchase = () => {
-        toast.info(`${product.name} 상품 구매 페이지로 이동합니다.`);
-        navigate("/checkout", { state: { productId: product._id, price: product.price } });
+    const handleContactSeller = () => {
+        toast.info(`판매자 '${product.sellerName || "정보 없음"}'에게 연락`);
     };
 
     return (
@@ -104,15 +103,17 @@ const ProductDetailPage = () => {
 
                     <ProductMeta>
                         <MetaItem>
+                            <label>판매자:</label>
+                            <span style={{ fontWeight: 700, color: PRIMARY_COLOR }}>
+                                {product.sellerName || "정보 없음"}
+                            </span>
+                        </MetaItem>
+
+                        <MetaItem>
                             <label>카테고리 ID:</label>
                             <span>{product.categoryId}</span>
                         </MetaItem>
-                        {product !== undefined && (
-                            <MetaItem>
-                                <label>재고:</label>
-                                <span>{product.toLocaleString()}개</span>
-                            </MetaItem>
-                        )}
+
                         <MetaItem>
                             <label>등록일:</label>
                             <span>{new Date(product.createdAt).toLocaleDateString()}</span>
@@ -120,10 +121,12 @@ const ProductDetailPage = () => {
                     </ProductMeta>
 
                     <ButtonContainer>
-                        <ActionButton primary onClick={handlePurchase}>
-                            바로 구매하기
-                        </ActionButton>
-                        <ActionButton onClick={handleAddToCart}>장바구니 담기</ActionButton>
+                        <CustomButton variant="primary" onClick={handleContactSeller}>
+                            판매자에게 연락하기
+                        </CustomButton>
+                        <CustomButton variant="secondary" onClick={handleAddToWishlist}>
+                            관심 상품 등록
+                        </CustomButton>
                     </ButtonContainer>
                 </InfoSection>
             </DetailWrapper>
@@ -261,25 +264,6 @@ const ButtonContainer = styled.div`
 
     @media (max-width: 768px) {
         flex-direction: column;
-    }
-`;
-
-const ActionButton = styled.button<{ primary?: boolean }>`
-    flex: 1;
-    padding: 12px 20px;
-    border: 2px solid ${PRIMARY_COLOR};
-    border-radius: 6px;
-    font-size: 1em;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.3s;
-
-    background-color: ${(props) => (props.primary ? PRIMARY_COLOR : colors.WHITE)};
-    color: ${(props) => (props.primary ? colors.WHITE : PRIMARY_COLOR)};
-
-    &:hover {
-        opacity: 0.9;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     }
 `;
 

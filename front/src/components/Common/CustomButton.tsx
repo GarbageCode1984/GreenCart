@@ -20,15 +20,15 @@ const sizeStyles = {
         padding: 8px 12px;
         font-size: 0.9rem;
         width: 130px;
-        max-width: 50%;
+        max-width: 100%;
         height: 50px;
     `,
     medium: css`
-        padding: 12px 15px;
-        font-size: 1rem;
-        width: 380px;
-        max-width: 95%;
-        height: 60px;
+        padding: 14px 20px;
+        font-size: 1.1rem;
+        width: 100%;
+        max-width: 400px;
+        height: 55px;
     `,
 };
 
@@ -37,7 +37,11 @@ const variantStyles = {
         background-color: ${colors.GREEN_300};
         color: ${colors.WHITE};
         border: none;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 
+        &:hover {
+            background-color: ${colors.GREEN_200};
+        }
         &:active:not(:disabled) {
             background-color: ${colors.GREEN_200};
         }
@@ -48,6 +52,10 @@ const variantStyles = {
         color: ${colors.BLUE_200};
         border: 1px solid ${colors.BLUE_100};
 
+        &:hover {
+            background-color: ${colors.BLUE_50};
+            border-color: ${colors.BLUE_200};
+        }
         &:active:not(:disabled) {
             background-color: ${colors.BLUE_50};
         }
@@ -58,13 +66,18 @@ const StyledButton = styled.button<ButtonProps>`
     font-weight: bold;
     cursor: pointer;
     text-align: center;
-    display: inline-block;
+    display: block;
     box-sizing: border-box;
     transition: background-color 0.2s ease-in-out;
     margin: 0 auto;
 
     ${({ size }) => sizeStyles[size || "medium"]}
     ${({ variant }) => variantStyles[variant || "primary"]};
+
+    &:disabled {
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
 `;
 
 export default CustomButton;
