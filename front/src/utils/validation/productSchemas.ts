@@ -11,11 +11,24 @@ export const ProductSchema = yup.object().shape({
         .number()
         .transform((value) => (Number.isNaN(value) || value === null || value === "" ? undefined : value))
         .required("판매가를 입력해주세요.")
-        .positive("판매가는 양수여야 합니다.")
+        .positive("판매 가격은 0보다 커야 합니다.")
         .integer("판매가는 정수여야 합니다.")
         .min(100, "판매가는 100원 이상이어야 합니다."),
 
-    categoryId: yup.string().required("카테고리를 선택해주세요."),
+    hashtag: yup
+        .string()
+        .optional()
+        .test("tag-limit", "해시태그는 최대 3개까지 등록 가능합니다.", (value) => {
+            if (!value) return true;
+            const tags = value.split(/[\s,]+/).filter((tag) => tag.trim() !== "");
+            return tags.length <= 3;
+        })
+        .test("tag-length", "각 해시태그는 10자를 초과할 수 없습니다.", (value) => {
+            if (!value) return true;
+            const tags = value.split(/[\s,]+/).filter((tag) => tag.trim() !== "");
+            return tags.every((tag) => tag.length <= 10);
+        }),
+
     description: yup.string().max(500, "설명은 500자를 초과할 수 없습니다.").notRequired(),
     images: yup
         .array()

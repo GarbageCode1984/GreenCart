@@ -38,27 +38,12 @@ const variantStyles = {
         color: ${colors.WHITE};
         border: none;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-
-        &:hover {
-            background-color: ${colors.GREEN_200};
-        }
-        &:active:not(:disabled) {
-            background-color: ${colors.GREEN_200};
-        }
     `,
 
     secondary: css`
         background-color: transparent;
         color: ${colors.BLUE_200};
         border: 1px solid ${colors.BLUE_100};
-
-        &:hover {
-            background-color: ${colors.BLUE_50};
-            border-color: ${colors.BLUE_200};
-        }
-        &:active:not(:disabled) {
-            background-color: ${colors.BLUE_50};
-        }
     `,
 };
 

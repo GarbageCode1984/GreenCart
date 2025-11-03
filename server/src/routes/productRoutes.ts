@@ -36,7 +36,7 @@ interface CustomRequest extends AuthRequest {
     body: {
         name: string;
         price: string;
-        categoryId: string;
+        tags?: string;
         description?: string;
     };
     files?: Express.Multer.File[] | { [fieldname: string]: Express.Multer.File[] };
@@ -55,11 +55,11 @@ router.post(
                 return res.status(401).json({ message: "사용자 인증 정보가 누락되었습니다. 다시 로그인해주세요." });
             }
 
-            const { name, price, categoryId, description } = req.body;
+            const { name, price, tags, description } = req.body;
             const images = req.files;
 
-            if (!name || !price || !categoryId) {
-                return res.status(400).json({ message: "상품명, 가격, 카테고리는 필수 항목입니다." });
+            if (!name || !price) {
+                return res.status(400).json({ message: "상품명, 가격은 필수 항목입니다." });
             }
             if (isNaN(Number(price)) || Number(price) <= 0) {
                 return res.status(400).json({ message: "유효하지 않은 숫자입니다." });
@@ -72,7 +72,7 @@ router.post(
             const newProduct = new Product({
                 name,
                 price: Number(price),
-                categoryId,
+                tags,
                 description,
                 images: imageUrls,
                 sellerId: sellerId,

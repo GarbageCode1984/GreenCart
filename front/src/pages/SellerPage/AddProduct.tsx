@@ -2,7 +2,7 @@ import CustomButton from "@/components/Common/CustomButton";
 import CustomInput from "@/components/Common/CustomInput";
 import CustomTextarea from "@/components/Common/CustomTextarea";
 import { colors } from "@/constants";
-import { Product, Category } from "@/types/types";
+import { Product } from "@/types/types";
 import { ProductSchema } from "@/utils/validation/productSchemas";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useEffect } from "react";
@@ -13,14 +13,6 @@ import { createProduct } from "@/api/products";
 import { useNavigate } from "react-router-dom";
 
 const MAX_IMAGES = 5;
-
-const categories: Category[] = [
-    { id: "", name: "카테고리 선택" },
-    { id: "electronics", name: "전자제품" },
-    { id: "books", name: "도서" },
-    { id: "food", name: "식품" },
-    { id: "uncategorized", name: "분류 없음" },
-];
 
 const AddProduct = () => {
     const {
@@ -56,8 +48,8 @@ const AddProduct = () => {
         const formData = new FormData();
         formData.append("name", data.name);
         formData.append("price", data.price.toString());
-        formData.append("categoryId", data.categoryId);
         formData.append("description", data.description || "");
+        formData.append("tags", data.hashtag || "");
 
         data.images?.forEach((file) => {
             if (file instanceof File) {
@@ -97,15 +89,14 @@ const AddProduct = () => {
                 </FormGroup>
 
                 <FormGroup>
-                    <Label htmlFor="categoryId">카테고리(필수)</Label>
-                    <StyledSelect id="categoryId" {...register("categoryId")} error={!!errors.categoryId}>
-                        {categories.map((category) => (
-                            <option key={category.id} value={category.id}>
-                                {category.name}
-                            </option>
-                        ))}
-                    </StyledSelect>
-                    {errors.categoryId && <ErrorMessage>{errors.categoryId.message}</ErrorMessage>}
+                    <Label htmlFor="hashtag">해시태그(선택 사항, 최대 3개, 각 10자 이내)</Label>
+                    <CustomInput
+                        id="hashtag"
+                        {...register("hashtag")}
+                        placeholder="예시) 신발, 한정판, 나이키 (쉼표나 공백으로 구분)"
+                        inputSize="large"
+                        error={errors.hashtag?.message}
+                    />
                 </FormGroup>
 
                 <FormGroup>
@@ -196,22 +187,6 @@ const Label = styled.label`
     margin-bottom: 8px;
     font-weight: 600;
     color: ${colors.BLACK_100};
-`;
-
-const StyledSelect = styled.select<{ error?: boolean }>`
-    padding: 10px 15px;
-    border: 1px solid ${(props) => (props.error ? colors.RED : colors.GRAY_25)};
-    border-radius: 4px;
-    font-size: 16px;
-    height: 40px;
-    width: 100%;
-    background-color: ${colors.WHITE_100};
-    cursor: pointer;
-    &:focus {
-        border-color: ${colors.GRAY_100};
-        outline: none;
-        box-shadow: 0 0 0 0.1rem rgba(106, 248, 141, 0.59);
-    }
 `;
 
 const ErrorMessage = styled.p`

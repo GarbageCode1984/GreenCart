@@ -22,7 +22,7 @@ export interface Product {
     _id: string;
     name: string;
     price: number;
-    categoryId: string;
+    hashtag: string;
     description?: string;
     images: (File | undefined)[] | null;
     sellerId: string;

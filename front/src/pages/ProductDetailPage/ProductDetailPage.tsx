@@ -104,14 +104,9 @@ const ProductDetailPage = () => {
                     <ProductMeta>
                         <MetaItem>
                             <label>판매자:</label>
-                            <span style={{ fontWeight: 700, color: PRIMARY_COLOR }}>
+                            <span style={{ fontWeight: 700, color: colors.GREEN_200 }}>
                                 {product.sellerName || "정보 없음"}
                             </span>
-                        </MetaItem>
-
-                        <MetaItem>
-                            <label>카테고리 ID:</label>
-                            <span>{product.categoryId}</span>
                         </MetaItem>
 
                         <MetaItem>
@@ -138,8 +133,6 @@ const ProductDetailPage = () => {
         </DetailContainer>
     );
 };
-
-const PRIMARY_COLOR = colors.BLUE_200;
 
 const DetailContainer = styled.div`
     max-width: 1000px;
@@ -207,7 +200,7 @@ const ThumbnailItem = styled.img<{ isActive: boolean }>`
     object-fit: cover;
     border-radius: 4px;
     cursor: pointer;
-    border: 2px solid ${(props) => (props.isActive ? PRIMARY_COLOR : "transparent")};
+    border: 2px solid ${(props) => (props.isActive ? colors.BLUE_100 : "transparent")};
     opacity: ${(props) => (props.isActive ? 1 : 0.7)};
     transition: all 0.2s;
 
@@ -230,7 +223,7 @@ const ProductName = styled.h1`
 const ProductPrice = styled.p`
     font-size: 2.5em;
     font-weight: 800;
-    color: ${PRIMARY_COLOR};
+    color: ${colors.BLUE_100};
     margin: 0 0 30px 0;
 `;
 
@@ -281,7 +274,7 @@ const DescriptionSection = styled.div`
 const DescriptionContent = styled.div`
     white-space: pre-wrap;
     line-height: 1.6;
-    color: ${colors.GRAY_200};
+    color: ${colors.BLACK_100};
     padding: 15px;
     border: 1px solid ${colors.GRAY_50};
     border-radius: 4px;

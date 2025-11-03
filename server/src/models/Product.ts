@@ -3,7 +3,7 @@ export interface Product {
     _id: string;
     name: string;
     price: number;
-    categoryId: string;
+    hashTag: string;
     description?: string;
     images: string[];
     createdAt: Date;
@@ -16,9 +16,9 @@ const ProductSchema = new mongoose.Schema<Product>(
     {
         name: { type: String, required: true, trim: true },
         price: { type: Number, required: true, min: 0 },
-        categoryId: { type: String, required: true },
+        hashTag: { type: String },
         description: { type: String, default: "" },
-        images: [{ type: String }],
+        images: { type: [String], default: [] },
         sellerId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
         sellerName: { type: String, required: true },
     },
