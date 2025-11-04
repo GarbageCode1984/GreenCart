@@ -7,6 +7,14 @@ import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import styled from "styled-components";
 
+const parseHashtags = (hashtagString: string | undefined): string[] => {
+    if (!hashtagString) return [];
+    return hashtagString
+        .split(/[\s,]+/)
+        .map((tag) => tag.trim())
+        .filter((tag) => tag.length > 0);
+};
+
 const ProductDetailPage = () => {
     const { productId } = useParams<{ productId: string }>();
 
@@ -67,6 +75,8 @@ const ProductDetailPage = () => {
         toast.info(`판매자 '${product.sellerName || "정보 없음"}'에게 연락`);
     };
 
+    const tags = parseHashtags(product.hashtag);
+
     return (
         <DetailContainer>
             <DetailWrapper>
@@ -107,6 +117,17 @@ const ProductDetailPage = () => {
                             <span style={{ fontWeight: 700, color: colors.GREEN_200 }}>
                                 {product.sellerName || "정보 없음"}
                             </span>
+                        </MetaItem>
+
+                        <MetaItem>
+                            <label style={{ marginTop: "5px" }}>해시태그:</label>
+                            {tags.length > 0 && (
+                                <HashtagContainer>
+                                    {tags.map((tag, index) => (
+                                        <Hashtag key={index}>#{tag}</Hashtag>
+                                    ))}
+                                </HashtagContainer>
+                            )}
                         </MetaItem>
 
                         <MetaItem>
@@ -245,10 +266,26 @@ const MetaItem = styled.div`
         width: 100px;
         flex-shrink: 0;
     }
-    span {
+    > span {
         color: ${colors.BLACK_100};
         font-weight: 500;
     }
+`;
+
+const HashtagContainer = styled.div`
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+`;
+
+const Hashtag = styled.span`
+    display: inline-block;
+    padding: 5px 12px;
+    background-color: ${colors.BLUE_50};
+    border-radius: 20px;
+    font-size: 0.9em;
+    font-weight: 500;
+    color: ${colors.GRAY_200};
 `;
 
 const ButtonContainer = styled.div`

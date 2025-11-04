@@ -36,7 +36,7 @@ interface CustomRequest extends AuthRequest {
     body: {
         name: string;
         price: string;
-        tags?: string;
+        hashtag?: string;
         description?: string;
     };
     files?: Express.Multer.File[] | { [fieldname: string]: Express.Multer.File[] };
@@ -55,7 +55,7 @@ router.post(
                 return res.status(401).json({ message: "사용자 인증 정보가 누락되었습니다. 다시 로그인해주세요." });
             }
 
-            const { name, price, tags, description } = req.body;
+            const { name, price, hashtag, description } = req.body;
             const images = req.files;
 
             if (!name || !price) {
@@ -72,7 +72,7 @@ router.post(
             const newProduct = new Product({
                 name,
                 price: Number(price),
-                tags,
+                hashtag,
                 description,
                 images: imageUrls,
                 sellerId: sellerId,

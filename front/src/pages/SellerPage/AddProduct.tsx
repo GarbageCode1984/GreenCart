@@ -49,7 +49,7 @@ const AddProduct = () => {
         formData.append("name", data.name);
         formData.append("price", data.price.toString());
         formData.append("description", data.description || "");
-        formData.append("tags", data.hashtag || "");
+        formData.append("hashtag", data.hashtag || "");
 
         data.images?.forEach((file) => {
             if (file instanceof File) {
