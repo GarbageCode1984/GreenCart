@@ -1,8 +1,9 @@
 import { getProductById } from "@/api/products";
 import CustomButton from "@/components/Common/CustomButton";
 import { colors } from "@/constants";
+import { useAuthStore } from "@/store/useAuthStore";
 import { Product } from "@/types/types";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import styled from "styled-components";
@@ -17,11 +18,15 @@ const parseHashtags = (hashtagString: string | undefined): string[] => {
 
 const ProductDetailPage = () => {
     const { productId } = useParams<{ productId: string }>();
-
     const [product, setProduct] = useState<Product | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+    const UserId = useAuthStore((store) => store.userData?._id);
+    const isOwner = useMemo(() => {
+        return product && UserId && product.sellerId === UserId;
+    }, [product, UserId]);
 
     useEffect(() => {
         if (!productId) {
@@ -75,6 +80,17 @@ const ProductDetailPage = () => {
         toast.info(`판매자 '${product.sellerName || "정보 없음"}'에게 연락`);
     };
 
+    const handleNextImage = () => {
+        if (!product || !product.images || product.images.length <= 1) return;
+
+        setCurrentImageIndex((prevIndex) => (prevIndex + 1) % product.images!.length);
+    };
+    const handlePrevImage = () => {
+        if (!product || !product.images || product.images.length <= 1) return;
+
+        setCurrentImageIndex((prevIndex) => (prevIndex - 1 + product.images!.length) % product.images!.length);
+    };
+
     const tags = parseHashtags(product.hashtag);
 
     return (
@@ -82,6 +98,17 @@ const ProductDetailPage = () => {
             <DetailWrapper>
                 <ImageSection>
                     <ImageCarousel>
+                        {product.images && product.images.length > 1 && (
+                            <>
+                                <SlideButton direction="prev" onClick={handlePrevImage}>
+                                    &lt;
+                                </SlideButton>
+                                <SlideButton direction="next" onClick={handleNextImage}>
+                                    &gt;
+                                </SlideButton>
+                            </>
+                        )}
+
                         {product.images && product.images.length > 0 ? (
                             <ProductImage
                                 src={`http://localhost:5000${product.images[currentImageIndex]}`}
@@ -137,12 +164,21 @@ const ProductDetailPage = () => {
                     </ProductMeta>
 
                     <ButtonContainer>
-                        <CustomButton variant="primary" onClick={handleContactSeller}>
-                            판매자에게 연락하기
-                        </CustomButton>
-                        <CustomButton variant="secondary" onClick={handleAddToWishlist}>
-                            관심 상품 등록
-                        </CustomButton>
+                        {isOwner ? (
+                            <>
+                                <CustomButton variant="primary">상품 수정하기</CustomButton>
+                                <CustomButton variant="secondary">상품 삭제</CustomButton>
+                            </>
+                        ) : (
+                            <>
+                                <CustomButton variant="primary" onClick={handleContactSeller}>
+                                    판매자에게 연락하기
+                                </CustomButton>
+                                <CustomButton variant="secondary" onClick={handleAddToWishlist}>
+                                    관심 상품 등록
+                                </CustomButton>
+                            </>
+                        )}
                     </ButtonContainer>
                 </InfoSection>
             </DetailWrapper>
@@ -232,6 +268,40 @@ const ThumbnailItem = styled.img<{ isActive: boolean }>`
 
 const InfoSection = styled.div`
     flex: 1;
+`;
+
+const SlideButton = styled.button<{ direction: "prev" | "next" }>`
+    position: absolute;
+    top: 50%;
+    ${(props) => (props.direction === "prev" ? "left: 10px;" : "right: 10px;")};
+    transform: translateY(-50%);
+    z-index: 10;
+
+    background: rgba(0, 0, 0, 0.6);
+    color: ${colors.WHITE};
+    border: none;
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    font-size: 2em;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+
+    cursor: pointer;
+    transition: background 0.2s;
+
+    &:hover {
+        background: rgba(0, 0, 0, 0.8);
+    }
+
+    @media (max-width: 600px) {
+        width: 40px;
+        height: 40px;
+        font-size: 1.8em;
+    }
 `;
 
 const ProductName = styled.h1`

@@ -2,7 +2,7 @@ import express, { NextFunction, Request, Response } from "express";
 import multer from "multer";
 import path from "path";
 import Product from "../models/Product";
-import { AuthRequest, protect } from "../middleware/auth";
+import { authMiddleware, AuthRequest, protect } from "../middleware/auth";
 
 const router = express.Router();
 
@@ -124,6 +124,70 @@ router.get("/:id", async (req: Request, res: Response, next: NextFunction) => {
     } catch (error) {
         console.error(`상품 ID ${req.params.id} 상세 조회 중 에러 발생:`, error);
         next(error);
+    }
+});
+
+router.patch("/:id", authMiddleware, async (req: AuthRequest, res: Response) => {
+    const productId = req.params.id;
+    const userId = req.user?.id;
+    const updateData = req.body;
+
+    if (!userId) {
+        return res.status(401).json({ message: "인증 정보가 유효하지 않습니다." });
+    }
+
+    try {
+        const product = await Product.findById(productId);
+
+        if (!product) {
+            return res.status(404).json({ message: "상품을 찾을 수 없습니다." });
+        }
+
+        if (product.sellerId.toString() !== userId) {
+            return res.status(403).json({ message: "상품 수정 권한이 없습니다." });
+        }
+
+        const updatedProduct = await Product.findByIdAndUpdate(
+            productId,
+            { $set: updateData },
+            { new: true, runValidators: true }
+        );
+
+        res.status(200).json({
+            message: "상품 수정 성공",
+            product: updatedProduct,
+        });
+    } catch (error: any) {
+        console.error("Product update error:", error);
+        res.status(500).json({ message: "상품 수정 중 서버 오류가 발생했습니다.", error: error.message });
+    }
+});
+
+router.delete("/:id", authMiddleware, async (req: AuthRequest, res: Response) => {
+    const productId = req.params.id;
+    const userId = req.user?.id;
+
+    if (!userId) {
+        return res.status(401).json({ message: "인증 정보가 유효하지 않습니다." });
+    }
+
+    try {
+        const product = await Product.findById(productId);
+
+        if (!product) {
+            return res.status(204).send();
+        }
+
+        if (product.sellerId.toString() !== userId) {
+            return res.status(403).json({ message: "상품 삭제 권한이 없습니다. (판매자만 삭제 가능)" });
+        }
+
+        await Product.findByIdAndDelete(productId);
+
+        res.status(204).send();
+    } catch (error: any) {
+        console.error("Product delete error:", error);
+        res.status(500).json({ message: "상품 삭제 중 서버 오류가 발생했습니다.", error: error.message });
     }
 });
 
