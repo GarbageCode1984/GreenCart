@@ -1,6 +1,7 @@
 import NotAuthRoute from "@/components/Auth/NotAuthRoute";
 import ProtectedRoute from "@/components/Auth/ProtectedRoute";
-import CartPage from "@/pages/CartPage/CartPage";
+import LoginPage from "@/pages/LoginPage/LoginPage";
+import MyPage from "@/pages/MyPage/MyPage";
 import OrdersPage from "@/pages/OrdersPage/OrdersPage";
 import UserRegisterPage from "@/pages/RegisterPage/UserRegisterPage";
 import WishlistPage from "@/pages/WishlistPage/WishlistPage";
@@ -16,10 +17,18 @@ export const userRoutes: RouteObject[] = [
         ),
     },
     {
-        path: "/cart",
+        path: "/login",
+        element: (
+            <NotAuthRoute>
+                <LoginPage />
+            </NotAuthRoute>
+        ),
+    },
+    {
+        path: "/mypage",
         element: (
             <ProtectedRoute>
-                <CartPage />
+                <MyPage />
             </ProtectedRoute>
         ),
     },

@@ -4,7 +4,7 @@ import { colors } from "@/constants";
 import { useAuthStore } from "@/store/useAuthStore";
 import { Product } from "@/types/types";
 import { useEffect, useMemo, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import styled from "styled-components";
 
@@ -22,6 +22,7 @@ const ProductDetailPage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
+    const navigate = useNavigate();
 
     const UserId = useAuthStore((store) => store.userData?._id);
     const isOwner = useMemo(() => {
@@ -73,11 +74,25 @@ const ProductDetailPage = () => {
     const handleImageChange = (index: number) => {
         setCurrentImageIndex(index);
     };
+
+    const handleContactSeller = () => {
+        toast.info(`판매자 '${product.sellerName || "정보 없음"}'에게 연락`);
+    };
     const handleAddToWishlist = () => {
         toast.success(`'${product.name}' 상품을 관심 목록에 등록했습니다!`);
     };
-    const handleContactSeller = () => {
-        toast.info(`판매자 '${product.sellerName || "정보 없음"}'에게 연락`);
+    const handleEdit = () => {
+        try {
+            if (!isOwner || !product) return;
+            if (product) {
+                // 1. 현재 디테일 페이지의 상품 정보를 가지고 수정 페이지로 이동
+                // 2. 상품 수정 페이지에서 상품 정보를 수정
+                // 3. 상품 수정 페이지에서 상품 정보를 서버에 전달
+                navigate(`/seller/edit-product/${product._id}`, { state: { productToEdit: product } });
+            }
+        } catch (error) {
+            console.error(error);
+        }
     };
 
     const handleNextImage = () => {
@@ -166,15 +181,17 @@ const ProductDetailPage = () => {
                     <ButtonContainer>
                         {isOwner ? (
                             <>
-                                <CustomButton variant="primary">상품 수정하기</CustomButton>
-                                <CustomButton variant="secondary">상품 삭제</CustomButton>
+                                <CustomButton variant="green" onClick={handleEdit}>
+                                    상품 수정하기
+                                </CustomButton>
+                                <CustomButton variant="red">상품 삭제</CustomButton>
                             </>
                         ) : (
                             <>
-                                <CustomButton variant="primary" onClick={handleContactSeller}>
+                                <CustomButton variant="green" onClick={handleContactSeller}>
                                     판매자에게 연락하기
                                 </CustomButton>
-                                <CustomButton variant="secondary" onClick={handleAddToWishlist}>
+                                <CustomButton variant="blue" onClick={handleAddToWishlist}>
                                     관심 상품 등록
                                 </CustomButton>
                             </>

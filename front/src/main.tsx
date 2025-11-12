@@ -5,11 +5,8 @@ import React from "react";
 import { GlobalStyles } from "./style/GlobalStyles.ts";
 import MainPage from "./pages/MainPage/MainPage.tsx";
 import { ToastContainer } from "react-toastify";
-import LoginPage from "./pages/LoginPage/LoginPage.tsx";
-import NotAuthRoute from "./components/Auth/NotAuthRoute.tsx";
 import { userRoutes } from "./routes/userRoutes.tsx";
 import { sellerRoutes } from "./routes/sellerRoutes.tsx";
-import MyPage from "./pages/MyPage/MyPage.tsx";
 import { productRoutes } from "./routes/productRoutes.tsx";
 
 const router = createBrowserRouter([
@@ -23,19 +20,7 @@ const router = createBrowserRouter([
             },
         ],
     },
-    {
-        path: "/mypage",
-        element: <MyPage />,
-    },
 
-    {
-        path: "/login",
-        element: (
-            <NotAuthRoute>
-                <LoginPage />
-            </NotAuthRoute>
-        ),
-    },
     ...userRoutes,
     ...sellerRoutes,
     ...productRoutes,

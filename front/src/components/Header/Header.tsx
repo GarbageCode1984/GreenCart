@@ -1,13 +1,13 @@
 import { colors } from "@/constants";
 import { useAuthStore } from "@/store/useAuthStore";
-import { FaPlusSquare, FaHeart, FaShoppingCart, FaTruck, FaUser } from "react-icons/fa";
+import { FaPlusSquare, FaHeart, FaUser } from "react-icons/fa";
 import { FiSearch } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import styled from "styled-components";
 
 const Header = () => {
-    const { isAuth, logout, userData } = useAuthStore();
+    const { isAuth, logout } = useAuthStore();
 
     const handleLogout = () => {
         localStorage.removeItem("token");
@@ -25,28 +25,6 @@ const Header = () => {
 
     const renderUserMenu = () => (
         <IconMenu>
-            <IconButton to="/wishlist">
-                <FaHeart />
-                <IconText>관심상품</IconText>
-            </IconButton>
-            <IconButton to="/mypage">
-                <FaUser />
-                <IconText>마이페이지</IconText>
-            </IconButton>
-            <IconButton to="/cart">
-                <FaShoppingCart />
-                <IconText>장바구니</IconText>
-            </IconButton>
-            <IconButton to="/orders">
-                <FaTruck />
-                <IconText>주문배송조회</IconText>
-            </IconButton>
-            <Logout onClick={handleLogout}>로그아웃</Logout>
-        </IconMenu>
-    );
-
-    const renderSellerMenu = () => (
-        <IconMenu>
             <IconButton to="/mypage">
                 <FaUser />
                 <IconText>마이페이지</IconText>
@@ -55,9 +33,9 @@ const Header = () => {
                 <FaPlusSquare />
                 <IconText>상품등록</IconText>
             </IconButton>
-            <IconButton to="/seller/orders">
-                <FaTruck />
-                <IconText>주문관리</IconText>
+            <IconButton to="/wishlist">
+                <FaHeart />
+                <IconText>관심상품</IconText>
             </IconButton>
             <Logout onClick={handleLogout}>로그아웃</Logout>
         </IconMenu>
@@ -71,7 +49,7 @@ const Header = () => {
                     <SearchInput type="text" placeholder="찾고있는 상품이 있다면?" />
                     <SearchIcon />
                 </SearchContainer>
-                {!isAuth ? renderLoggedOutMenu() : userData?.role === "seller" ? renderSellerMenu() : renderUserMenu()}
+                {!isAuth ? renderLoggedOutMenu() : renderUserMenu()}
             </HeaderContainer>
             <NavContainer>
                 <NavItem to="/best">베스트</NavItem>

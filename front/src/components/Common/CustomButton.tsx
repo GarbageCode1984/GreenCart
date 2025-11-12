@@ -4,10 +4,10 @@ import styled, { css } from "styled-components";
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     children?: React.ReactNode;
     size?: "small" | "medium";
-    variant?: "primary" | "secondary";
+    variant?: "green" | "blue" | "red";
 }
 
-const CustomButton = ({ children, size = "medium", variant = "primary", ...props }: ButtonProps) => {
+const CustomButton = ({ children, size = "medium", variant = "green", ...props }: ButtonProps) => {
     return (
         <StyledButton size={size} variant={variant} {...props}>
             {children}
@@ -33,17 +33,23 @@ const sizeStyles = {
 };
 
 const variantStyles = {
-    primary: css`
+    green: css`
         background-color: ${colors.GREEN_300};
         color: ${colors.WHITE};
         border: none;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     `,
 
-    secondary: css`
+    blue: css`
         background-color: transparent;
         color: ${colors.BLUE_200};
         border: 1px solid ${colors.BLUE_100};
+    `,
+
+    red: css`
+        background-color: transparent;
+        color: ${colors.RED};
+        border: 1px solid ${colors.RED};
     `,
 };
 
@@ -57,7 +63,7 @@ const StyledButton = styled.button<ButtonProps>`
     margin: 0 auto;
 
     ${({ size }) => sizeStyles[size || "medium"]}
-    ${({ variant }) => variantStyles[variant || "primary"]};
+    ${({ variant }) => variantStyles[variant || "green"]};
 
     &:disabled {
         cursor: not-allowed;

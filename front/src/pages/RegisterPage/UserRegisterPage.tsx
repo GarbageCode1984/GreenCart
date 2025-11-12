@@ -8,8 +8,6 @@ import styled from "styled-components";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { registerSchema } from "@/utils/validation/authSchemas";
 import { toast } from "react-toastify";
-import { Link } from "react-router-dom";
-import { colors } from "@/constants";
 
 const UserRegisterPage = () => {
     const {
@@ -51,7 +49,6 @@ const UserRegisterPage = () => {
                 />
             </InputForm>
             <CustomButton type="submit">회원가입</CustomButton>
-            <SellerRegister to="/sellerRegister">판매자로 가입하기</SellerRegister>
         </Container>
     );
 };
@@ -67,13 +64,6 @@ const Container = styled.div`
 
 const InputForm = styled.div`
     margin-bottom: 25px;
-`;
-
-const SellerRegister = styled(Link)`
-    width: 20%;
-    margin-top: 10px;
-    font-size: 14px;
-    color: ${colors.GRAY_200};
 `;
 
 export default UserRegisterPage;
