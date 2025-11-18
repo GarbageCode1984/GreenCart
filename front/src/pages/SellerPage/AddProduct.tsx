@@ -134,7 +134,7 @@ const AddProduct = () => {
                     {previewImageUrls.length > 0 && (
                         <ImagePreviewContainer>
                             {previewImageUrls.map((url, index) => (
-                                <ImageWrapper key={url}>
+                                <ImageWrapper key={index}>
                                     <PreviewImage src={url} alt={`상품 이미지 ${index + 1}`} />
                                     <RemoveButton type="button" onClick={() => handleRemoveImage(index)}>
                                         X

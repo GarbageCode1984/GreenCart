@@ -81,13 +81,11 @@ const ProductDetailPage = () => {
     const handleAddToWishlist = () => {
         toast.success(`'${product.name}' 상품을 관심 목록에 등록했습니다!`);
     };
+
     const handleEdit = () => {
         try {
             if (!isOwner || !product) return;
             if (product) {
-                // 1. 현재 디테일 페이지의 상품 정보를 가지고 수정 페이지로 이동
-                // 2. 상품 수정 페이지에서 상품 정보를 수정
-                // 3. 상품 수정 페이지에서 상품 정보를 서버에 전달
                 navigate(`/seller/edit-product/${product._id}`, { state: { productToEdit: product } });
             }
         } catch (error) {
@@ -107,7 +105,7 @@ const ProductDetailPage = () => {
     };
 
     const tags = parseHashtags(product.hashtag);
-
+    console.log(product);
     return (
         <DetailContainer>
             <DetailWrapper>

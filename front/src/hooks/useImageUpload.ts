@@ -10,7 +10,6 @@ interface UseImageUploadReturn {
     previewImageUrls: string[];
     imageUploadError: string | null;
     isImageLimit: boolean;
-
     getRootProps: ReturnType<typeof useDropzone>["getRootProps"];
     getInputProps: ReturnType<typeof useDropzone>["getInputProps"];
     isDragActive: boolean;
@@ -30,7 +29,7 @@ export const useImageUpload = ({ maxImages }: UseImageUploadOptions): UseImageUp
         return () => {
             urlsToRevoke.forEach((url) => URL.revokeObjectURL(url));
         };
-    }, [imageFiles]);
+    }, [imageFiles, previewImageUrls]);
 
     const onDrop = useCallback(
         (acceptedFiles: File[], fileRejections: FileRejection[]) => {

@@ -5,14 +5,17 @@ import { colors } from "@/constants";
 import { Product } from "@/types/types";
 import { ProductSchema } from "@/utils/validation/productSchemas";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Resolver, SubmitHandler, useForm } from "react-hook-form";
 import styled from "styled-components";
 import { useImageUpload } from "@/hooks/useImageUpload";
-import { createProduct } from "@/api/products";
 import { useNavigate } from "react-router-dom";
+import { updateProduct } from "@/api/products";
+import { useLocation, useParams } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const MAX_IMAGES = 5;
+const API_BASE_URL = "http://localhost:5000";
 
 const EditProduct = () => {
     const {
@@ -23,13 +26,19 @@ const EditProduct = () => {
     } = useForm<Product>({
         resolver: yupResolver(ProductSchema) as unknown as Resolver<Product>,
     });
+
     const navigate = useNavigate();
+    const location = useLocation();
+    const { productId } = useParams<{ productId: string | undefined }>();
+
+    const productToEdit = location.state?.productToEdit as Product | undefined;
+
+    const [existingImages, setExistingImages] = useState<string[]>([]);
 
     const {
-        imageFiles,
-        previewImageUrls,
+        imageFiles: newImageFiles,
+        previewImageUrls: newImagePreviewUrls,
         imageUploadError,
-        isImageLimit,
         getRootProps,
         getInputProps,
         isDragActive,
@@ -37,41 +46,80 @@ const EditProduct = () => {
         handleRemoveImage,
     } = useImageUpload({ maxImages: MAX_IMAGES });
 
+    const totalImageCount = existingImages.length + newImageFiles.length;
+    const isImageLimit = totalImageCount >= MAX_IMAGES;
+
     useEffect(() => {
-        setValue("images", imageFiles.length > 0 ? imageFiles : null, {
+        const loadProductData = async () => {
+            let productData: Product | null = null;
+
+            if (!productId) {
+                toast.error("유효하지 않은 상품 ID입니다.");
+                navigate("/");
+                return;
+            }
+
+            if (productToEdit && productToEdit._id === productId) {
+                productData = productToEdit;
+            }
+
+            if (productData) {
+                console.log("상품 이미지:", productData.images);
+
+                setValue("name", productData.name, { shouldValidate: true });
+                setValue("price", productData.price, { shouldValidate: true });
+                setValue("description", productData.description, { shouldValidate: true });
+                setValue("hashtag", productData.hashtag, { shouldValidate: true });
+
+                setExistingImages((productData.images as unknown as string[]) || []);
+            }
+        };
+
+        loadProductData();
+    }, [productId, productToEdit, setValue, navigate]);
+
+    useEffect(() => {
+        setValue("images", newImageFiles.length > 0 ? newImageFiles : null, {
             shouldValidate: true,
             shouldDirty: true,
         });
-    }, [imageFiles, setValue]);
+    }, [newImageFiles, setValue]);
 
-    const handleAddProduct: SubmitHandler<Product> = async (data: Product) => {
+    const handleRemoveExistingImage = useCallback((urlToRemove: string) => {
+        setExistingImages((prev) => prev.filter((url) => url !== urlToRemove));
+    }, []);
+
+    const handleEditProduct: SubmitHandler<Product> = async (data: Product) => {
         const formData = new FormData();
         formData.append("name", data.name);
         formData.append("price", data.price.toString());
         formData.append("description", data.description || "");
         formData.append("hashtag", data.hashtag || "");
 
-        data.images?.forEach((file) => {
-            if (file instanceof File) {
-                formData.append("images", file);
-            }
+        newImageFiles.forEach((file) => {
+            formData.append("newImages", file);
         });
 
+        formData.append("existingImages", JSON.stringify(existingImages));
+
         try {
-            const result = await createProduct(formData);
-            console.log("상품 등록 성공:", result);
-            alert("상품이 성공적으로 등록되었습니다!");
-            navigate("/");
+            const productUpdateId = productId ?? "";
+            console.log(productUpdateId);
+            console.log(formData);
+            const result = await updateProduct(productUpdateId, formData);
+            console.log("상품 수정 성공:", result);
+            toast.success("상품이 성공적으로 수정되었습니다!");
+            navigate(`/products/${productId}`);
         } catch (error) {
-            console.log("상품 등록 실패");
-            alert(`상품 등록에 실패했습니다: ${error.message}`);
+            console.log("상품 수정 실패");
+            alert(`상품 수정에 실패했습니다: ${error.message}`);
         }
     };
 
     return (
         <ProductContainer>
             <Title>상품 수정 페이지</Title>
-            <Form onSubmit={handleSubmit(handleAddProduct)}>
+            <Form onSubmit={handleSubmit(handleEditProduct)}>
                 <FormGroup>
                     <Label htmlFor="name">상품명(필수)</Label>
                     <CustomInput id="name" {...register("name")} inputSize="large" error={errors.name?.message} />
@@ -131,11 +179,20 @@ const EditProduct = () => {
                             (imageUploadError && <ErrorMessage>{imageUploadError}</ErrorMessage>)}
                     </ImageUploaderContainer>
 
-                    {previewImageUrls.length > 0 && (
+                    {(existingImages.length > 0 || newImagePreviewUrls.length > 0) && (
                         <ImagePreviewContainer>
-                            {previewImageUrls.map((url, index) => (
-                                <ImageWrapper key={url}>
-                                    <PreviewImage src={url} alt={`상품 이미지 ${index + 1}`} />
+                            {existingImages.map((url, index) => (
+                                <ImageWrapper key={`existing-${index}-${url}`}>
+                                    <PreviewImage src={`${API_BASE_URL}${url}`} alt={`기존 이미지 ${index + 1}`} />
+                                    <RemoveButton type="button" onClick={() => handleRemoveExistingImage(url)}>
+                                        X
+                                    </RemoveButton>
+                                </ImageWrapper>
+                            ))}
+
+                            {newImagePreviewUrls.map((url, index) => (
+                                <ImageWrapper key={`new-${index}`}>
+                                    <PreviewImage src={url} alt={`새로 추가된 이미지 ${index + 1}`} />
                                     <RemoveButton type="button" onClick={() => handleRemoveImage(index)}>
                                         X
                                     </RemoveButton>

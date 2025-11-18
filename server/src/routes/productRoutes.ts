@@ -107,7 +107,7 @@ router.get("/findAllProduct", async (req: Request, res: Response, next: NextFunc
     }
 });
 
-router.get("/:id", async (req: Request, res: Response, next: NextFunction) => {
+router.get("/getProductDetail/:id", async (req: Request, res: Response, next: NextFunction) => {
     try {
         const productId = req.params.id;
 
@@ -127,43 +127,74 @@ router.get("/:id", async (req: Request, res: Response, next: NextFunction) => {
     }
 });
 
-router.patch("/:id", authMiddleware, async (req: AuthRequest, res: Response) => {
-    const productId = req.params.id;
-    const userId = req.user?.id;
-    const updateData = req.body;
+router.patch(
+    "/update/:id",
+    authMiddleware,
+    upload.fields([{ name: "newImages", maxCount: 5 }]),
+    async (req: AuthRequest, res: Response) => {
+        const productId = req.params.id;
+        const userId = req.user?.id;
 
-    if (!userId) {
-        return res.status(401).json({ message: "인증 정보가 유효하지 않습니다." });
-    }
+        const { name, price, hashtag, description, existingImages } = req.body;
 
-    try {
-        const product = await Product.findById(productId);
+        const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
+        const images = files?.newImages;
 
-        if (!product) {
-            return res.status(404).json({ message: "상품을 찾을 수 없습니다." });
+        if (!userId) {
+            return res.status(401).json({ message: "인증 정보가 유효하지 않습니다." });
         }
 
-        if (product.sellerId.toString() !== userId) {
-            return res.status(403).json({ message: "상품 수정 권한이 없습니다." });
+        try {
+            const product = await Product.findById(productId);
+
+            if (!product) {
+                return res.status(404).json({ message: "상품을 찾을 수 없습니다." });
+            }
+
+            if (product.sellerId.toString() !== userId.toString()) {
+                return res.status(403).json({ message: "상품 수정 권한이 없습니다." });
+            }
+
+            const newImagesUrls = images ? images.map((file) => `/uploads/${file.filename}`) : [];
+            let existingImageUrls: string[] = [];
+            if (existingImages) {
+                try {
+                    existingImageUrls = JSON.parse(existingImages);
+                    if (!Array.isArray(existingImageUrls)) {
+                        existingImageUrls = [];
+                    }
+                } catch (error) {
+                    console.error(error);
+                    return res.status(400).json({ message: "잘못된 이미지 목록 형식입니다." });
+                }
+            }
+
+            const totalData: any = {};
+            if (name) totalData.name = name;
+            if (price) totalData.price = Number(price);
+            if (hashtag) totalData.hashtag = hashtag;
+            if (description) totalData.description = description;
+
+            totalData.images = [...existingImageUrls, ...newImagesUrls];
+
+            const updatedProduct = await Product.findByIdAndUpdate(
+                productId,
+                { $set: totalData },
+                { new: true, runValidators: true }
+            );
+
+            res.status(200).json({
+                message: "상품 수정 성공",
+                product: updatedProduct,
+            });
+        } catch (error: any) {
+            console.error("Product update error:", error);
+            res.status(500).json({ message: "상품 수정 중 서버 오류가 발생했습니다.", error: error.message });
         }
-
-        const updatedProduct = await Product.findByIdAndUpdate(
-            productId,
-            { $set: updateData },
-            { new: true, runValidators: true }
-        );
-
-        res.status(200).json({
-            message: "상품 수정 성공",
-            product: updatedProduct,
-        });
-    } catch (error: any) {
-        console.error("Product update error:", error);
-        res.status(500).json({ message: "상품 수정 중 서버 오류가 발생했습니다.", error: error.message });
     }
-});
+);
 
-router.delete("/:id", authMiddleware, async (req: AuthRequest, res: Response) => {
+router.delete("/delete/:id", authMiddleware, async (req: AuthRequest, res: Response) => {
     const productId = req.params.id;
     const userId = req.user?.id;
 
