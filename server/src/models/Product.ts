@@ -3,6 +3,7 @@ export interface Product {
     _id: string;
     name: string;
     price: number;
+    region: string;
     hashtag?: string;
     description?: string;
     images: string[];
@@ -16,6 +17,7 @@ const ProductSchema = new mongoose.Schema<Product>(
     {
         name: { type: String, required: true, trim: true },
         price: { type: Number, required: true, min: 0 },
+        region: { type: String, required: true, trim: true },
         hashtag: { type: String },
         description: { type: String, default: "" },
         images: { type: [String], default: [] },

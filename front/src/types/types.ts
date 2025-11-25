@@ -22,6 +22,9 @@ export interface Product {
     _id: string;
     name: string;
     price: number;
+    region: string;
+    province?: string;
+    city?: string;
     hashtag: string;
     description?: string;
     images: (File | undefined)[] | null;

@@ -36,6 +36,7 @@ interface CustomRequest extends AuthRequest {
     body: {
         name: string;
         price: string;
+        region: string;
         hashtag?: string;
         description?: string;
     };
@@ -55,11 +56,11 @@ router.post(
                 return res.status(401).json({ message: "사용자 인증 정보가 누락되었습니다. 다시 로그인해주세요." });
             }
 
-            const { name, price, hashtag, description } = req.body;
+            const { name, price, region, hashtag, description } = req.body;
             const images = req.files;
 
-            if (!name || !price) {
-                return res.status(400).json({ message: "상품명, 가격은 필수 항목입니다." });
+            if (!name || !price || !region) {
+                return res.status(400).json({ message: "상품명, 가격, 지역은 필수 항목입니다." });
             }
             if (isNaN(Number(price)) || Number(price) <= 0) {
                 return res.status(400).json({ message: "유효하지 않은 숫자입니다." });
@@ -72,6 +73,7 @@ router.post(
             const newProduct = new Product({
                 name,
                 price: Number(price),
+                region,
                 hashtag,
                 description,
                 images: imageUrls,
@@ -135,7 +137,7 @@ router.patch(
         const productId = req.params.id;
         const userId = req.user?.id;
 
-        const { name, price, hashtag, description, existingImages } = req.body;
+        const { name, price, region, hashtag, description, existingImages } = req.body;
 
         const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
         const images = files?.newImages;
@@ -156,6 +158,7 @@ router.patch(
             }
 
             const newImagesUrls = images ? images.map((file) => `/uploads/${file.filename}`) : [];
+
             let existingImageUrls: string[] = [];
             if (existingImages) {
                 try {
@@ -172,6 +175,7 @@ router.patch(
             const totalData: any = {};
             if (name) totalData.name = name;
             if (price) totalData.price = Number(price);
+            if (region) totalData.region = region;
             if (hashtag) totalData.hashtag = hashtag;
             if (description) totalData.description = description;
 

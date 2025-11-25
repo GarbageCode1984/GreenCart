@@ -6,13 +6,14 @@ import { Product } from "@/types/types";
 import { ProductSchema } from "@/utils/validation/productSchemas";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useCallback, useEffect, useState } from "react";
-import { Resolver, SubmitHandler, useForm } from "react-hook-form";
+import { Resolver, SubmitHandler, useForm, useWatch } from "react-hook-form";
 import styled from "styled-components";
 import { useImageUpload } from "@/hooks/useImageUpload";
 import { useNavigate } from "react-router-dom";
 import { updateProduct } from "@/api/products";
 import { useLocation, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
+import regionsData from "@/constants/regionsData";
 
 const MAX_IMAGES = 5;
 const API_BASE_URL = "http://localhost:5000";
@@ -22,9 +23,22 @@ const EditProduct = () => {
         register,
         handleSubmit,
         setValue,
+        control,
+        reset,
         formState: { errors },
     } = useForm<Product>({
         resolver: yupResolver(ProductSchema) as unknown as Resolver<Product>,
+        defaultValues: {
+            name: "",
+            price: 0,
+            province: "",
+            city: "",
+            region: "",
+            description: "",
+            hashtag: "",
+            images: [],
+        },
+        mode: "onSubmit",
     });
 
     const navigate = useNavigate();
@@ -46,6 +60,25 @@ const EditProduct = () => {
         handleRemoveImage,
     } = useImageUpload({ maxImages: MAX_IMAGES });
 
+    const provinces = Object.keys(regionsData);
+
+    const watchedFiles = useWatch({ control, name: ["province", "city"] });
+    const selectedProvince = watchedFiles[0];
+    const selectedCity = watchedFiles[1];
+
+    const cities = selectedProvince ? regionsData[selectedProvince] : [];
+
+    useEffect(() => {
+        let regionValue = "";
+
+        if (selectedProvince && selectedCity) {
+            regionValue = `${selectedProvince} ${selectedCity}`;
+        }
+
+        const shouldValidate = !!(selectedProvince || selectedCity);
+        setValue("region", regionValue, { shouldValidate });
+    }, [selectedProvince, selectedCity, setValue]);
+
     const totalImageCount = existingImages.length + newImageFiles.length;
     const isImageLimit = totalImageCount >= MAX_IMAGES;
 
@@ -64,22 +97,44 @@ const EditProduct = () => {
             }
 
             if (productData) {
-                console.log("상품 이미지:", productData.images);
+                let defaultProvince = "";
+                let defaultCity = "";
 
-                setValue("name", productData.name, { shouldValidate: true });
-                setValue("price", productData.price, { shouldValidate: true });
-                setValue("description", productData.description, { shouldValidate: true });
-                setValue("hashtag", productData.hashtag, { shouldValidate: true });
+                if (productData.region) {
+                    const parts = productData.region.split(" ").filter((part) => part.trim() !== "");
+
+                    if (parts.length >= 1) {
+                        defaultProvince = parts[0];
+                        defaultCity = parts.slice(1).join(" ");
+                    }
+                }
+
+                reset({
+                    name: productData.name,
+                    price: productData.price,
+                    description: productData.description,
+                    hashtag: productData.hashtag,
+                    province: defaultProvince,
+                    city: defaultCity,
+                    region: productData.region,
+                    images: [],
+                });
+
+                if (defaultCity) {
+                    setTimeout(() => {
+                        setValue("city", defaultCity);
+                    }, 10);
+                }
 
                 setExistingImages((productData.images as unknown as string[]) || []);
             }
         };
 
         loadProductData();
-    }, [productId, productToEdit, setValue, navigate]);
+    }, [productId, productToEdit, reset, navigate, setValue]);
 
     useEffect(() => {
-        setValue("images", newImageFiles.length > 0 ? newImageFiles : null, {
+        setValue("images", newImageFiles.length > 0 ? newImageFiles : [], {
             shouldValidate: true,
             shouldDirty: true,
         });
@@ -93,6 +148,7 @@ const EditProduct = () => {
         const formData = new FormData();
         formData.append("name", data.name);
         formData.append("price", data.price.toString());
+        formData.append("region", data.region);
         formData.append("description", data.description || "");
         formData.append("hashtag", data.hashtag || "");
 
@@ -104,10 +160,7 @@ const EditProduct = () => {
 
         try {
             const productUpdateId = productId ?? "";
-            console.log(productUpdateId);
-            console.log(formData);
-            const result = await updateProduct(productUpdateId, formData);
-            console.log("상품 수정 성공:", result);
+            await updateProduct(productUpdateId, formData);
             toast.success("상품이 성공적으로 수정되었습니다!");
             navigate(`/products/${productId}`);
         } catch (error) {
@@ -134,6 +187,48 @@ const EditProduct = () => {
                         inputSize="large"
                         error={errors.price?.message}
                     />
+                </FormGroup>
+
+                <FormGroup>
+                    <Label>거래 지역 (필수)</Label>
+                    <AddressSelectContainer>
+                        <Select
+                            {...register("province", {
+                                onChange: () => {
+                                    setValue("city", "");
+                                },
+                            })}
+                            error={!!errors.region}
+                            aria-invalid={!!errors.region}
+                            aria-label="시/도 선택"
+                        >
+                            <option value="">시/도 선택</option>
+                            {provinces.map((province) => (
+                                <option key={province} value={province}>
+                                    {province}
+                                </option>
+                            ))}
+                        </Select>
+
+                        <Select
+                            {...register("city")}
+                            disabled={!selectedProvince || cities.length === 0}
+                            error={!!errors.region}
+                            aria-invalid={!!errors.region}
+                            aria-label="시/군/구 선택"
+                        >
+                            <option value="">시/군/구 선택</option>
+                            {cities.map((city) => (
+                                <option key={city} value={city}>
+                                    {city}
+                                </option>
+                            ))}
+                        </Select>
+                    </AddressSelectContainer>
+                    {errors.region && (
+                        <ErrorMessage style={{ marginTop: "-16px" }}>{errors.region.message}</ErrorMessage>
+                    )}
+                    <input type="hidden" {...register("region")} />
                 </FormGroup>
 
                 <FormGroup>
@@ -334,6 +429,44 @@ const RemoveButton = styled.button`
 
     &:hover {
         opacity: 1;
+    }
+`;
+
+const AddressSelectContainer = styled.div`
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    margin-bottom: 10px;
+    @media (max-width: 600px) {
+        flex-direction: column;
+    }
+`;
+
+const Select = styled.select<{ error?: boolean }>`
+    flex: 1;
+    padding: 10px 15px;
+    font-size: 16px;
+    border: 1px solid ${(props) => (props.error ? colors.RED : colors.GRAY_100)};
+    border-radius: 8px;
+    appearance: none;
+    background-color: ${colors.WHITE_100};
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 16px;
+    cursor: pointer;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+
+    &:focus {
+        outline: none;
+        border-color: ${colors.GREEN_50};
+        box-shadow: 0 0 0 3px ${colors.GREEN_100};
+    }
+
+    &:disabled {
+        background-color: ${colors.GRAY_25};
+        cursor: not-allowed;
+        color: ${colors.GRAY_100};
     }
 `;
 

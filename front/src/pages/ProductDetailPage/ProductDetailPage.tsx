@@ -105,7 +105,7 @@ const ProductDetailPage = () => {
     };
 
     const tags = parseHashtags(product.hashtag);
-    console.log(product);
+
     return (
         <DetailContainer>
             <DetailWrapper>

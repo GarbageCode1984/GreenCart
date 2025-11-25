@@ -15,6 +15,11 @@ export const ProductSchema = yup.object().shape({
         .integer("판매가는 정수여야 합니다.")
         .min(100, "판매가는 100원 이상이어야 합니다."),
 
+    region: yup.string().required("거래 지역을 시/도와 시/군/구 모두 선택해야 합니다."),
+
+    province: yup.string().nullable().optional(),
+    city: yup.string().nullable().optional(),
+
     hashtag: yup
         .string()
         .optional()

@@ -5,12 +5,13 @@ import { colors } from "@/constants";
 import { Product } from "@/types/types";
 import { ProductSchema } from "@/utils/validation/productSchemas";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useEffect } from "react";
-import { Resolver, SubmitHandler, useForm } from "react-hook-form";
+import { useEffect, useState } from "react";
+import { Resolver, SubmitHandler, useForm, useWatch } from "react-hook-form";
 import styled from "styled-components";
 import { useImageUpload } from "@/hooks/useImageUpload";
 import { createProduct } from "@/api/products";
 import { useNavigate } from "react-router-dom";
+import regionsData from "@/constants/regionsData";
 
 const MAX_IMAGES = 5;
 
@@ -19,9 +20,21 @@ const AddProduct = () => {
         register,
         handleSubmit,
         setValue,
+        control,
         formState: { errors },
     } = useForm<Product>({
         resolver: yupResolver(ProductSchema) as unknown as Resolver<Product>,
+        defaultValues: {
+            name: "",
+            price: 0,
+            province: "",
+            city: "",
+            region: "",
+            description: "",
+            hashtag: "",
+            images: [],
+        },
+        mode: "onSubmit",
     });
     const navigate = useNavigate();
 
@@ -37,6 +50,33 @@ const AddProduct = () => {
         handleRemoveImage,
     } = useImageUpload({ maxImages: MAX_IMAGES });
 
+    const [cities, setCities] = useState<string[]>([]);
+    const provinces = Object.keys(regionsData);
+
+    const watchedFiles = useWatch({ control, name: ["province", "city"] });
+    const selectedProvince = watchedFiles[0];
+    const selectedCity = watchedFiles[1];
+
+    useEffect(() => {
+        if (selectedProvince && regionsData[selectedProvince]) {
+            setCities(regionsData[selectedProvince]);
+            setValue("city", "", { shouldValidate: true });
+        } else {
+            setCities([]);
+        }
+    }, [selectedProvince, setValue]);
+
+    useEffect(() => {
+        let regionValue = "";
+
+        if (selectedProvince && selectedCity) {
+            regionValue = `${selectedProvince} ${selectedCity}`;
+        }
+
+        const shouldValidate = !!(selectedProvince && selectedCity);
+        setValue("region", regionValue, { shouldValidate });
+    }, [selectedProvince, selectedCity, setValue]);
+
     useEffect(() => {
         setValue("images", imageFiles.length > 0 ? imageFiles : null, {
             shouldValidate: true,
@@ -48,6 +88,7 @@ const AddProduct = () => {
         const formData = new FormData();
         formData.append("name", data.name);
         formData.append("price", data.price.toString());
+        formData.append("region", data.region);
         formData.append("description", data.description || "");
         formData.append("hashtag", data.hashtag || "");
 
@@ -58,8 +99,7 @@ const AddProduct = () => {
         });
 
         try {
-            const result = await createProduct(formData);
-            console.log("상품 등록 성공:", result);
+            await createProduct(formData);
             alert("상품이 성공적으로 등록되었습니다!");
             navigate("/");
         } catch (error) {
@@ -86,6 +126,38 @@ const AddProduct = () => {
                         inputSize="large"
                         error={errors.price?.message}
                     />
+                </FormGroup>
+
+                <FormGroup>
+                    <Label>거래 지역(필수)</Label>
+                    <AddressSelectContainer>
+                        <Select {...register("province")} error={!!errors.region} aria-invalid={!!errors.region}>
+                            <option value="">시/도 선택</option>
+                            {provinces.map((province) => (
+                                <option key={province} value={province}>
+                                    {province}
+                                </option>
+                            ))}
+                        </Select>
+
+                        <Select
+                            {...register("city")}
+                            disabled={!selectedProvince || cities.length === 0}
+                            error={!!errors.region}
+                            aria-invalid={!!errors.region}
+                        >
+                            <option value="">시/군/구 선택</option>
+                            {cities.map((city) => (
+                                <option key={city} value={city}>
+                                    {city}
+                                </option>
+                            ))}
+                        </Select>
+                    </AddressSelectContainer>
+                    {errors.region && (
+                        <ErrorMessage style={{ marginTop: "-16px" }}>{errors.region.message}</ErrorMessage>
+                    )}
+                    <input type="hidden" {...register("region")} />
                 </FormGroup>
 
                 <FormGroup>
@@ -277,6 +349,44 @@ const RemoveButton = styled.button`
 
     &:hover {
         opacity: 1;
+    }
+`;
+
+const AddressSelectContainer = styled.div`
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    margin-bottom: 10px;
+    @media (max-width: 600px) {
+        flex-direction: column;
+    }
+`;
+
+const Select = styled.select<{ error?: boolean }>`
+    flex: 1;
+    padding: 10px 15px;
+    font-size: 16px;
+    border: 1px solid ${(props) => (props.error ? colors.RED : colors.GRAY_100)};
+    border-radius: 8px;
+    appearance: none;
+    background-color: ${colors.WHITE_100};
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 16px;
+    cursor: pointer;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+
+    &:focus {
+        outline: none;
+        border-color: ${colors.GREEN_50};
+        box-shadow: 0 0 0 3px ${colors.GREEN_100};
+    }
+
+    &:disabled {
+        background-color: ${colors.GRAY_25};
+        cursor: not-allowed;
+        color: ${colors.GRAY_100};
     }
 `;
 
