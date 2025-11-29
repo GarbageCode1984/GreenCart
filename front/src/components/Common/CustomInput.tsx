@@ -12,7 +12,7 @@ const CustomInput = forwardRef<HTMLInputElement, InputProps>(
     ({ label, inputSize = "medium", error, ...props }, ref) => {
         return (
             <InputContainer>
-                <StyledInput placeholder={label} {...props} ref={ref} inputSize={inputSize} />
+                <StyledInput placeholder={label} ref={ref} {...props} inputSize={inputSize} />
                 {error && <ErrorMessage>{error}</ErrorMessage>}
             </InputContainer>
         );

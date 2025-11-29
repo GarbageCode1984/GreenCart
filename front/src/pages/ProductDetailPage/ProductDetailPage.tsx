@@ -1,4 +1,4 @@
-import { getProductById } from "@/api/products";
+import { deleteProduct, getProductById } from "@/api/products";
 import CustomButton from "@/components/Common/CustomButton";
 import { colors } from "@/constants";
 import { useAuthStore } from "@/store/useAuthStore";
@@ -104,6 +104,23 @@ const ProductDetailPage = () => {
         setCurrentImageIndex((prevIndex) => (prevIndex - 1 + product.images!.length) % product.images!.length);
     };
 
+    const handleDelete = async () => {
+        if (!product || !product._id) return;
+
+        const confirmDelete = window.confirm("정말로 이 상품을 삭제하시겠습니까?\n 삭제된 상품은 복구가 불가능합니다.");
+
+        if (confirmDelete) {
+            try {
+                await deleteProduct(product._id);
+                toast.success("상품이 삭제되었습니다.");
+                navigate("/");
+            } catch (error) {
+                console.error("상품 삭제 실패:", error);
+                toast.error(`상품 삭제에 실패했습니다: ${error.message || "알 수 없는 오류"}`);
+            }
+        }
+    };
+
     const tags = parseHashtags(product.hashtag);
 
     return (
@@ -160,6 +177,11 @@ const ProductDetailPage = () => {
                         </MetaItem>
 
                         <MetaItem>
+                            <label>지역:</label>
+                            <span>{product.region || "정보 없음"}</span>
+                        </MetaItem>
+
+                        <MetaItem>
                             <label style={{ marginTop: "5px" }}>해시태그:</label>
                             {tags.length > 0 && (
                                 <HashtagContainer>
@@ -182,7 +204,9 @@ const ProductDetailPage = () => {
                                 <CustomButton variant="green" onClick={handleEdit}>
                                     상품 수정하기
                                 </CustomButton>
-                                <CustomButton variant="red">상품 삭제</CustomButton>
+                                <CustomButton variant="red" onClick={handleDelete}>
+                                    상품 삭제
+                                </CustomButton>
                             </>
                         ) : (
                             <>
@@ -342,14 +366,13 @@ const ProductMeta = styled.div`
 
 const MetaItem = styled.div`
     display: flex;
-    margin-bottom: 8px;
+    margin: 8px 0;
     font-size: 1em;
 
     label {
         font-weight: 600;
         color: ${colors.GRAY_200};
         width: 100px;
-        flex-shrink: 0;
     }
     > span {
         color: ${colors.BLACK_100};

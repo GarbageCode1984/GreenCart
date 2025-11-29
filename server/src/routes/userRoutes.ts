@@ -47,7 +47,7 @@ router.post("/login", async (req: Request, res: Response) => {
             return res.status(401).json({ message: "이메일 또는 비밀번호가 올바르지 않습니다." });
         }
 
-        const token = jwt.sign({ id: user._id }, jwtSecret, { expiresIn: "1h" });
+        const token = jwt.sign({ id: user._id }, jwtSecret, { expiresIn: "24h" });
         const userResponseData = {
             _id: user._id,
             name: user.name,

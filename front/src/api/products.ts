@@ -45,3 +45,13 @@ export const updateProduct = async (productId: string, data: FormData) => {
         throw new Error(errorMessage);
     }
 };
+
+export const deleteProduct = async (prodictId: string) => {
+    try {
+        const response = await axiosInstance.delete(`/products/delete/${prodictId}`);
+        return response.data;
+    } catch (error) {
+        const errorMessage = getApiErrorMessage(error, "상품 삭제 처리 중 오류가 발생했습니다.");
+        throw new Error(errorMessage);
+    }
+};
