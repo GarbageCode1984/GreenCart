@@ -6,6 +6,7 @@ export interface User {
     email: string;
     password: string;
     role: "user" | "admin";
+    wishlist: mongoose.Types.ObjectId[];
     createdAt: Date;
     updatedAt: Date;
 }
@@ -18,7 +19,7 @@ export interface UserDocument extends User, Document {
 
 const userSchema = new mongoose.Schema(
     {
-        name: { type: String, required: true, minlength: 2, maxlength: 16, trim: true },
+        name: { type: String, required: true, minlength: 2, max_length: 16, trim: true },
         email: {
             type: String,
             required: true,
@@ -36,6 +37,13 @@ const userSchema = new mongoose.Schema(
             default: "user",
             required: true,
         },
+        wishlist: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "Product",
+                default: [],
+            },
+        ],
     },
     {
         timestamps: true,

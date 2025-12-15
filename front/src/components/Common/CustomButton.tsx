@@ -4,7 +4,7 @@ import styled, { css } from "styled-components";
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     children?: React.ReactNode;
     size?: "small" | "medium";
-    variant?: "green" | "blue" | "red";
+    variant?: "green" | "blue" | "red" | "gray";
 }
 
 const CustomButton = ({ children, size = "medium", variant = "green", ...props }: ButtonProps) => {
@@ -50,6 +50,12 @@ const variantStyles = {
         background-color: transparent;
         color: ${colors.RED};
         border: 1px solid ${colors.RED};
+    `,
+
+    gray: css`
+        background-color: ${colors.GRAY_100};
+        color: ${colors.WHITE};
+        border: none;
     `,
 };
 

@@ -8,12 +8,14 @@ interface AuthState {
         name: string;
         email: string;
         role: string;
+        wishlist: string[];
     } | null;
 }
 
 interface AuthActions {
     login: (user: AuthState["userData"]) => void;
     logout: () => void;
+    setUser: (user: AuthState["userData"]) => void;
 }
 
 type AuthStore = AuthState & AuthActions;
@@ -35,6 +37,8 @@ export const useAuthStore = create<AuthStore>()(
                     isAuth: false,
                     userData: null,
                 }),
+
+            setUser: (user) => set((state) => ({ ...state, userData: user, isAuth: !!user })),
         }),
         {
             name: "auth-storage",

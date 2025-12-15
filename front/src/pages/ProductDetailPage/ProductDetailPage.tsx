@@ -1,4 +1,5 @@
 import { deleteProduct, getProductById } from "@/api/products";
+import { toggleWishlist } from "@/api/wishlist";
 import CustomButton from "@/components/Common/CustomButton";
 import { colors } from "@/constants";
 import { useAuthStore } from "@/store/useAuthStore";
@@ -23,6 +24,8 @@ const ProductDetailPage = () => {
     const [error, setError] = useState<string | null>(null);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const navigate = useNavigate();
+    const { isAuth, userData, setUser } = useAuthStore();
+    const [isWished, setIsWished] = useState(false);
 
     const UserId = useAuthStore((store) => store.userData?._id);
     const isOwner = useMemo(() => {
@@ -45,7 +48,7 @@ const ProductDetailPage = () => {
                 setProduct(response);
             } catch (error) {
                 setError(error.message);
-                toast.error(`상품 상세 정보 로드 실패: ${error}`);
+                toast.error(`상품 정보를 불러오지 못했습니다.`);
             } finally {
                 setLoading(false);
             }
@@ -53,6 +56,14 @@ const ProductDetailPage = () => {
 
         getProduct();
     }, [productId]);
+
+    useEffect(() => {
+        if (userData && userData.wishlist && productId) {
+            setIsWished(userData.wishlist.includes(productId));
+        } else {
+            setIsWished(false);
+        }
+    }, [userData, productId]);
 
     if (loading) {
         return (
@@ -78,8 +89,35 @@ const ProductDetailPage = () => {
     const handleContactSeller = () => {
         toast.info(`판매자 '${product.sellerName || "정보 없음"}'에게 연락`);
     };
-    const handleAddToWishlist = () => {
-        toast.success(`'${product.name}' 상품을 관심 목록에 등록했습니다!`);
+
+    const handleAddToWishlist = async () => {
+        if (!isAuth) {
+            toast.warning("로그인이 필요합니다.");
+            return;
+        }
+
+        if (!productId) return;
+
+        try {
+            const nextState = !isWished;
+            setIsWished(nextState);
+
+            const data = await toggleWishlist(productId);
+
+            if (data.wishlist && userData) {
+                setUser({ ...userData, wishlist: data.wishlist });
+            }
+
+            if (nextState) {
+                toast.success("관심 상품에 등록되었습니다.");
+            } else {
+                toast.info("관심 상품이 해제되었습니다.");
+            }
+        } catch (error) {
+            console.error("찜하기 실패:", error);
+            setIsWished(!isWished);
+            toast.error("오류가 발생했습니다.");
+        }
     };
 
     const handleEdit = () => {
@@ -176,13 +214,13 @@ const ProductDetailPage = () => {
                             </span>
                         </MetaItem>
 
-                        <MetaItem>
+                        <MetaItem style={{ marginTop: "10px" }}>
                             <label>지역:</label>
                             <span>{product.region || "정보 없음"}</span>
                         </MetaItem>
 
                         <MetaItem>
-                            <label style={{ marginTop: "5px" }}>해시태그:</label>
+                            <label style={{ marginTop: "2px" }}>해시태그:</label>
                             {tags.length > 0 && (
                                 <HashtagContainer>
                                     {tags.map((tag, index) => (
@@ -213,8 +251,8 @@ const ProductDetailPage = () => {
                                 <CustomButton variant="green" onClick={handleContactSeller}>
                                     판매자에게 연락하기
                                 </CustomButton>
-                                <CustomButton variant="blue" onClick={handleAddToWishlist}>
-                                    관심 상품 등록
+                                <CustomButton variant={isWished ? "gray" : "blue"} onClick={handleAddToWishlist}>
+                                    {isWished ? "관심 상품 해제" : "관심 상품 등록"}
                                 </CustomButton>
                             </>
                         )}

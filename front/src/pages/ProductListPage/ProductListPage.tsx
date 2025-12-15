@@ -55,10 +55,20 @@ const ProductListPage = () => {
                             )}
                         </ProductThumbnail>
 
-                        <ProductInfo>
+                        {/* <ProductInfo>
                             <h3 className="product-name">{product.name}</h3>
                             <ProductPrice>₩{product.price.toLocaleString()}</ProductPrice>
-                        </ProductInfo>
+                        </ProductInfo> */}
+
+                        <InfoWrapper>
+                            <ProductTitle>{product.name}</ProductTitle>
+                            <Price>{product.price.toLocaleString()}원</Price>
+                            <MetaInfo>
+                                <span>{product.region}</span>
+                                <span>·</span>
+                                <span>{product.sellerName}</span>
+                            </MetaInfo>
+                        </InfoWrapper>
                     </ProductCard>
                 ))}
             </ProductGrid>
@@ -67,9 +77,10 @@ const ProductListPage = () => {
 };
 
 const PageContainer = styled.div`
-    padding: 50px;
     max-width: 1200px;
+    min-height: 80vh;
     margin: 0 auto;
+    padding: 80px 20px;
 
     h1 {
         font-size: 2em;
@@ -127,19 +138,36 @@ const NoImagePlaceholder = styled.div`
     font-weight: bold;
 `;
 
-const ProductInfo = styled.div`
-    padding: 15px;
-    .product-name {
-        font-size: 1.2em;
-        margin: 0 0 10px 0;
-    }
+const InfoWrapper = styled.div`
+    padding: 16px;
 `;
 
-const ProductPrice = styled.p`
+const ProductTitle = styled.h3`
+    font-size: 1rem;
+    font-weight: 500;
+    margin-bottom: 8px;
+    line-height: 1.4;
+    height: 2.8em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+`;
+
+const Price = styled.p`
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 10px;
     color: ${colors.BLUE_200};
-    font-weight: bold;
-    font-size: 1.4em;
-    margin: 0;
+`;
+
+const MetaInfo = styled.div`
+    font-size: 0.8rem;
+    color: ${colors.GRAY_200};
+    display: flex;
+    gap: 6px;
+    align-items: center;
 `;
 
 const LoadingMessage = styled.div`

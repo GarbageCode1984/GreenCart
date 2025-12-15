@@ -97,7 +97,7 @@ router.post(
 
 router.get("/findAllProduct", async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const products = await Product.find({}).lean();
+        const products = await Product.find({}).sort({ createdAt: -1 }).lean();
         res.status(200).json({
             message: "상품 목록을 불러왔습니다.",
             products: products,
@@ -105,6 +105,21 @@ router.get("/findAllProduct", async (req: Request, res: Response, next: NextFunc
         });
     } catch (error) {
         console.error("상품 목록 조회 중 에러 발생:", error);
+        next(error);
+    }
+});
+
+router.get("/search", async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { q } = req.query;
+        if (!q || typeof q !== "string") {
+            return res.status(400).json({ message: "검색어를 입력해주세요." });
+        }
+
+        const products = await Product.find({ name: { $regex: q, $options: "i" } }).sort({ createAt: -1 });
+        res.status(200).json(products);
+    } catch (error) {
+        console.error("상품 검색 중 에러 발생:", error);
         next(error);
     }
 });

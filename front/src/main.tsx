@@ -8,6 +8,7 @@ import { ToastContainer } from "react-toastify";
 import { userRoutes } from "./routes/userRoutes.tsx";
 import { sellerRoutes } from "./routes/sellerRoutes.tsx";
 import { productRoutes } from "./routes/productRoutes.tsx";
+import SearchPage from "./pages/SearchPage/SearchPage.tsx";
 
 const router = createBrowserRouter([
     {
@@ -17,6 +18,10 @@ const router = createBrowserRouter([
             {
                 index: true,
                 element: <MainPage />,
+            },
+            {
+                path: "/search",
+                element: <SearchPage />,
             },
         ],
     },

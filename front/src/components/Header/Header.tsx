@@ -1,10 +1,10 @@
 import { colors } from "@/constants";
 import { useAuthStore } from "@/store/useAuthStore";
 import { FaPlusSquare, FaHeart, FaUser } from "react-icons/fa";
-import { FiSearch } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import styled from "styled-components";
+import SearchBar from "../Common/SearchBar";
 
 const Header = () => {
     const { isAuth, logout } = useAuthStore();
@@ -46,8 +46,7 @@ const Header = () => {
             <HeaderContainer>
                 <Logo to="/">GreenCart</Logo>
                 <SearchContainer>
-                    <SearchInput type="text" placeholder="찾고있는 상품이 있다면?" />
-                    <SearchIcon />
+                    <SearchBar />
                 </SearchContainer>
                 {!isAuth ? renderLoggedOutMenu() : renderUserMenu()}
             </HeaderContainer>
@@ -87,30 +86,7 @@ const SearchContainer = styled.div`
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
-    border-radius: 15px;
     margin: 0 auto;
-    align-items: center;
-`;
-
-const SearchInput = styled.input`
-    padding: 16px 12px;
-    border-radius: 15px;
-    border: none;
-    font-size: 1rem;
-    width: 100%;
-    &:focus {
-        outline: none;
-    }
-`;
-
-const SearchIcon = styled(FiSearch)`
-    position: absolute;
-    width: 28px;
-    height: 28px;
-    right: 8px;
-    color: ${colors.GREEN_100};
-    cursor: pointer;
-    transform: translateY(35%);
 `;
 
 const UserMenu = styled.div`

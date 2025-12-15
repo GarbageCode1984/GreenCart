@@ -46,12 +46,27 @@ export const updateProduct = async (productId: string, data: FormData) => {
     }
 };
 
-export const deleteProduct = async (prodictId: string) => {
+export const deleteProduct = async (productId: string) => {
     try {
-        const response = await axiosInstance.delete(`/products/delete/${prodictId}`);
+        const response = await axiosInstance.delete(`/products/delete/${productId}`);
         return response.data;
     } catch (error) {
         const errorMessage = getApiErrorMessage(error, "상품 삭제 처리 중 오류가 발생했습니다.");
+        throw new Error(errorMessage);
+    }
+};
+
+export const searchProduct = async (keyword: string): Promise<Product[]> => {
+    if (!keyword) return [];
+
+    try {
+        const response = await axiosInstance.get(`/products/search`, {
+            params: { q: keyword },
+        });
+
+        return response.data;
+    } catch (error) {
+        const errorMessage = getApiErrorMessage(error, "상품 검색 실패");
         throw new Error(errorMessage);
     }
 };

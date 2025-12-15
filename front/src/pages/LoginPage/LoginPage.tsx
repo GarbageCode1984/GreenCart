@@ -31,7 +31,6 @@ const LoginPage = () => {
             toast.success("로그인 성공!");
             navigate("/");
         } catch (error) {
-            console.log(error);
             const ErrorMessage = error.message || "알 수 없는 오류가 발생했습니다.";
             toast.error(`${ErrorMessage}`);
         }
