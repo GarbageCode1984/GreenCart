@@ -87,7 +87,7 @@ const ProductDetailPage = () => {
     };
 
     const handleContactSeller = () => {
-        toast.info(`판매자 '${product.sellerName || "정보 없음"}'에게 연락`);
+        toast.success(`판매자 '${product.sellerName || "정보 없음"}'에게 연락`);
     };
 
     const handleAddToWishlist = async () => {
@@ -109,7 +109,7 @@ const ProductDetailPage = () => {
             }
 
             if (nextState) {
-                toast.success("관심 상품에 등록되었습니다.");
+                toast.info("관심 상품에 등록되었습니다.");
             } else {
                 toast.info("관심 상품이 해제되었습니다.");
             }

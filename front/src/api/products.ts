@@ -56,12 +56,19 @@ export const deleteProduct = async (productId: string) => {
     }
 };
 
-export const searchProduct = async (keyword: string): Promise<Product[]> => {
-    if (!keyword) return [];
+interface SearchResponse {
+    products: Product[];
+    totalPages: number;
+    totalCount: number;
+    currentPage: number;
+}
+
+export const searchProduct = async (keyword: string, page: number = 1, limit: number = 12): Promise<SearchResponse> => {
+    if (!keyword) return { products: [], totalPages: 0, totalCount: 0, currentPage: 1 };
 
     try {
         const response = await axiosInstance.get(`/products/search`, {
-            params: { q: keyword },
+            params: { q: keyword, page, limit },
         });
 
         return response.data;

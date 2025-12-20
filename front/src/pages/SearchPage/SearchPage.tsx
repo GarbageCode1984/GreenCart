@@ -6,13 +6,19 @@ import { FiAlertCircle } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { useSearchParams } from "react-router-dom";
 import styled from "styled-components";
+import Pagination from "@/components/Common/Pagination";
 
 const SearchPage = () => {
-    const [searchParmas] = useSearchParams();
-    const query = searchParmas.get("q") || "";
+    const [searchParams, setSearchParams] = useSearchParams();
+    const query = searchParams.get("q") || "";
+    const pageParam = searchParams.get("page");
+    const currentPage = pageParam ? parseInt(pageParam) : 1;
+
     const navigate = useNavigate();
 
     const [products, setProducts] = useState<Product[]>([]);
+    const [totalPages, setTotalPages] = useState(1);
+    const [totalCount, setTotalCount] = useState(0);
     const [isLoading, setIsLoading] = useState<boolean>(true);
 
     useEffect(() => {
@@ -25,8 +31,10 @@ const SearchPage = () => {
 
             setIsLoading(true);
             try {
-                const response = await searchProduct(query);
-                setProducts(response);
+                const data = await searchProduct(query, currentPage, 6);
+                setProducts(data.products);
+                setTotalPages(data.totalPages);
+                setTotalCount(data.totalCount);
             } catch (error) {
                 console.error(error);
                 setProducts([]);
@@ -36,7 +44,13 @@ const SearchPage = () => {
         };
 
         SearchResults();
-    }, [query]);
+    }, [query, currentPage]);
+
+    const handlePageChange = (newPage: number) => {
+        searchParams.set("page", newPage.toString());
+        setSearchParams(searchParams);
+        window.scrollTo(0, 0);
+    };
 
     return (
         <Container>
@@ -45,39 +59,43 @@ const SearchPage = () => {
                     <Highlight>'{query}'</Highlight> 검색 결과
                 </Title>
                 <ResultCount>
-                    총 <Bold>{products.length}</Bold>개의 상품
+                    총 <Bold>{totalCount}</Bold>개의 상품
                 </ResultCount>
             </HeaderArea>
 
             {isLoading ? (
                 <Loading>상품을 열심히 찾고 있습니다...</Loading>
             ) : products.length > 0 ? (
-                <GridContainer>
-                    {products.map((product) => (
-                        <ProductCard key={product._id} onClick={() => navigate(`/products/${product._id}`)}>
-                            <ProductThumbnail>
-                                {product.images?.[0] ? (
-                                    <ProductImage
-                                        src={`http://localhost:5000${product.images[0]}`}
-                                        alt={product.name}
-                                    />
-                                ) : (
-                                    <NoImagePlaceholder>No Image</NoImagePlaceholder>
-                                )}
-                            </ProductThumbnail>
+                <>
+                    <GridContainer>
+                        {products.map((product) => (
+                            <ProductCard key={product._id} onClick={() => navigate(`/products/${product._id}`)}>
+                                <ProductThumbnail>
+                                    {product.images?.[0] ? (
+                                        <ProductImage
+                                            src={`http://localhost:5000${product.images[0]}`}
+                                            alt={product.name}
+                                        />
+                                    ) : (
+                                        <NoImagePlaceholder>No Image</NoImagePlaceholder>
+                                    )}
+                                </ProductThumbnail>
 
-                            <InfoWrapper>
-                                <ProductTitle>{product.name}</ProductTitle>
-                                <Price>{product.price.toLocaleString()}원</Price>
-                                <MetaInfo>
-                                    <span>{product.region}</span>
-                                    <span>·</span>
-                                    <span>{product.sellerName}</span>
-                                </MetaInfo>
-                            </InfoWrapper>
-                        </ProductCard>
-                    ))}
-                </GridContainer>
+                                <InfoWrapper>
+                                    <ProductTitle>{product.name}</ProductTitle>
+                                    <Price>{product.price.toLocaleString()}원</Price>
+                                    <MetaInfo>
+                                        <span>{product.region}</span>
+                                        <span>·</span>
+                                        <span>{product.sellerName}</span>
+                                    </MetaInfo>
+                                </InfoWrapper>
+                            </ProductCard>
+                        ))}
+                    </GridContainer>
+
+                    <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
+                </>
             ) : (
                 <EmptyState>
                     <FiAlertCircle size={50} color={colors.GRAY_100} />

@@ -97,11 +97,21 @@ router.post(
 
 router.get("/findAllProduct", async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const products = await Product.find({}).sort({ createdAt: -1 }).lean();
+        const page = parseInt(req.query.page as string) || 1;
+        const limit = parseInt(req.query.limit as string) || 12;
+        const skip = (page - 1) * limit;
+
+        const totalCount = await Product.countDocuments({});
+        const totalPages = Math.ceil(totalCount / limit);
+
+        const products = await Product.find({}).sort({ createdAt: -1 }).skip(skip).limit(limit).lean();
+
         res.status(200).json({
             message: "상품 목록을 불러왔습니다.",
             products: products,
-            count: products.length,
+            currentPage: page,
+            totalPages: totalPages,
+            totalCount: totalCount,
         });
     } catch (error) {
         console.error("상품 목록 조회 중 에러 발생:", error);
@@ -112,12 +122,27 @@ router.get("/findAllProduct", async (req: Request, res: Response, next: NextFunc
 router.get("/search", async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { q } = req.query;
+        const page = parseInt(req.query.page as string) || 1;
+        const limit = parseInt(req.query.limit as string) || 12;
+        const skip = (page - 1) * limit;
+
         if (!q || typeof q !== "string") {
             return res.status(400).json({ message: "검색어를 입력해주세요." });
         }
 
-        const products = await Product.find({ name: { $regex: q, $options: "i" } }).sort({ createAt: -1 });
-        res.status(200).json(products);
+        const query = { name: { $regex: q, $options: "i" } };
+
+        const totalCount = await Product.countDocuments(query);
+        const totalPages = Math.ceil(totalCount / limit);
+
+        const products = await Product.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit);
+
+        res.status(200).json({
+            products,
+            currentPage: page,
+            totalPages,
+            totalCount,
+        });
     } catch (error) {
         console.error("상품 검색 중 에러 발생:", error);
         next(error);
