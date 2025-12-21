@@ -32,6 +32,13 @@ export interface Product {
     sellerName: string;
 }
 
+export interface SearchResponse {
+    products: Product[];
+    totalPages: number;
+    totalCount: number;
+    currentPage: number;
+}
+
 export interface Category {
     id: string;
     name: string;

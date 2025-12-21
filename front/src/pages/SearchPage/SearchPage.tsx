@@ -31,7 +31,7 @@ const SearchPage = () => {
 
             setIsLoading(true);
             try {
-                const data = await searchProduct(query, currentPage, 6);
+                const data = await searchProduct(query, currentPage, 12);
                 setProducts(data.products);
                 setTotalPages(data.totalPages);
                 setTotalCount(data.totalCount);

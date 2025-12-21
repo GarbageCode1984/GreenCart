@@ -1,5 +1,5 @@
 import axiosInstance from "@/utils/axios";
-import { Product } from "@/types/types";
+import { Product, SearchResponse } from "@/types/types";
 import { getApiErrorMessage } from "@/utils/errorMessage";
 
 export const createProduct = async (data: FormData) => {
@@ -12,10 +12,12 @@ export const createProduct = async (data: FormData) => {
     }
 };
 
-export const getAllProducts = async (): Promise<Product[]> => {
+export const getAllProducts = async (page: number = 1, limit: number = 12): Promise<SearchResponse> => {
     try {
-        const response = await axiosInstance.get("/products/findAllProduct");
-        return response.data.products;
+        const response = await axiosInstance.get("/products/findAllProduct", {
+            params: { page, limit },
+        });
+        return response.data;
     } catch (error) {
         const errorMessage = getApiErrorMessage(error, "상품 목록을 불러오는 데 실패했습니다.");
 
@@ -55,13 +57,6 @@ export const deleteProduct = async (productId: string) => {
         throw new Error(errorMessage);
     }
 };
-
-interface SearchResponse {
-    products: Product[];
-    totalPages: number;
-    totalCount: number;
-    currentPage: number;
-}
 
 export const searchProduct = async (keyword: string, page: number = 1, limit: number = 12): Promise<SearchResponse> => {
     if (!keyword) return { products: [], totalPages: 0, totalCount: 0, currentPage: 1 };

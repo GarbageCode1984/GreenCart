@@ -15,7 +15,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }: PaginationProps) 
 
     return (
         <Container>
-            <PageButton onClick={() => onPageChange(currentPage - 1)}>
+            <PageButton onClick={() => onPageChange(currentPage - 1)} disabled={currentPage === 1}>
                 <FiChevronLeft />
             </PageButton>
 

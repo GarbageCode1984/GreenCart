@@ -1,22 +1,33 @@
 import { getAllProducts } from "@/api/products";
+import Pagination from "@/components/Common/Pagination";
 import { colors } from "@/constants";
 import { Product } from "@/types/types";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import styled from "styled-components";
 
 const ProductListPage = () => {
     const [products, setProducts] = useState<Product[]>([]);
+    const [totalPages, setTotalPages] = useState(1);
+    const [totalCount, setTotalCount] = useState(0);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
+
+    const [searchParams, setSearchParams] = useSearchParams();
+    const pageParam = searchParams.get("page");
+    const currentPage = pageParam ? parseInt(pageParam) : 1;
+
     const navigate = useNavigate();
 
     useEffect(() => {
         const loadProducts = async () => {
             try {
                 setIsLoading(true);
-                const data = await getAllProducts();
-                setProducts(data);
+                const data = await getAllProducts(currentPage, 12);
+
+                setProducts(data.products);
+                setTotalPages(data.totalPages);
+                setTotalCount(data.totalCount);
                 setError(null);
             } catch (error) {
                 setError(error.message);
@@ -27,7 +38,13 @@ const ProductListPage = () => {
         };
 
         loadProducts();
-    }, []);
+    }, [currentPage]);
+
+    const handlePageChange = (newPage: number) => {
+        searchParams.set("page", newPage.toString());
+        setSearchParams(searchParams);
+        window.scrollTo(0, 0);
+    };
 
     if (isLoading) {
         return <LoadingMessage>상품 목록을 불러오는 중입니다...</LoadingMessage>;
@@ -40,39 +57,41 @@ const ProductListPage = () => {
     }
 
     return (
-        <PageContainer>
-            <h1>🛍️ 전체 상품</h1>
-            <p className="product-count">총 {products.length}개의 상품이 있습니다.</p>
+        <>
+            <PageContainer>
+                <h1>🛍️ 전체 상품</h1>
+                <p className="product-count">총 {totalCount}개의 상품이 있습니다.</p>
 
-            <ProductGrid>
-                {products.map((product) => (
-                    <ProductCard key={product._id} onClick={() => navigate(`/products/${product._id}`)}>
-                        <ProductThumbnail>
-                            {product.images?.[0] ? (
-                                <ProductImage src={`http://localhost:5000${product.images[0]}`} alt={product.name} />
-                            ) : (
-                                <NoImagePlaceholder>No Image</NoImagePlaceholder>
-                            )}
-                        </ProductThumbnail>
+                <ProductGrid>
+                    {products.map((product) => (
+                        <ProductCard key={product._id} onClick={() => navigate(`/products/${product._id}`)}>
+                            <ProductThumbnail>
+                                {product.images?.[0] ? (
+                                    <ProductImage
+                                        src={`http://localhost:5000${product.images[0]}`}
+                                        alt={product.name}
+                                    />
+                                ) : (
+                                    <NoImagePlaceholder>No Image</NoImagePlaceholder>
+                                )}
+                            </ProductThumbnail>
 
-                        {/* <ProductInfo>
-                            <h3 className="product-name">{product.name}</h3>
-                            <ProductPrice>₩{product.price.toLocaleString()}</ProductPrice>
-                        </ProductInfo> */}
+                            <InfoWrapper>
+                                <ProductTitle>{product.name}</ProductTitle>
+                                <Price>{product.price.toLocaleString()}원</Price>
+                                <MetaInfo>
+                                    <span>{product.region}</span>
+                                    <span>·</span>
+                                    <span>{product.sellerName}</span>
+                                </MetaInfo>
+                            </InfoWrapper>
+                        </ProductCard>
+                    ))}
+                </ProductGrid>
+            </PageContainer>
 
-                        <InfoWrapper>
-                            <ProductTitle>{product.name}</ProductTitle>
-                            <Price>{product.price.toLocaleString()}원</Price>
-                            <MetaInfo>
-                                <span>{product.region}</span>
-                                <span>·</span>
-                                <span>{product.sellerName}</span>
-                            </MetaInfo>
-                        </InfoWrapper>
-                    </ProductCard>
-                ))}
-            </ProductGrid>
-        </PageContainer>
+            <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
+        </>
     );
 };
 
