@@ -3,6 +3,7 @@ import multer from "multer";
 import path from "path";
 import Product from "../models/Product";
 import { authMiddleware, AuthRequest, protect } from "../middleware/auth";
+import fs from "fs";
 
 const router = express.Router();
 
@@ -255,6 +256,23 @@ router.delete("/delete/:id", authMiddleware, async (req: AuthRequest, res: Respo
 
         if (product.sellerId.toString() !== userId) {
             return res.status(403).json({ message: "상품 삭제 권한이 없습니다. (판매자만 삭제 가능)" });
+        }
+
+        if (product.images && product.images.length > 0) {
+            product.images.forEach((imagePath) => {
+                try {
+                    const relativePath = imagePath.startsWith("/") ? imagePath.slice(1) : imagePath;
+                    const fullPath = path.join(process.cwd(), relativePath);
+
+                    fs.unlink(fullPath, (err) => {
+                        if (err) {
+                            console.error("File delete error:", err);
+                        }
+                    });
+                } catch (error) {
+                    console.error("이미지 경로 처리 중 오류:", error);
+                }
+            });
         }
 
         await Product.findByIdAndDelete(productId);
