@@ -4,6 +4,7 @@ import path from "path";
 import Product from "../models/Product";
 import { authMiddleware, AuthRequest, protect } from "../middleware/auth";
 import fs from "fs";
+import { error } from "console";
 
 const router = express.Router();
 
@@ -80,6 +81,7 @@ router.post(
                 images: imageUrls,
                 sellerId: sellerId,
                 sellerName: sellerName,
+                status: "FOR_SALE",
             });
 
             const createdProduct = await newProduct.save();
@@ -281,6 +283,43 @@ router.delete("/delete/:id", authMiddleware, async (req: AuthRequest, res: Respo
     } catch (error: any) {
         console.error("Product delete error:", error);
         res.status(500).json({ message: "상품 삭제 중 서버 오류가 발생했습니다.", error: error.message });
+    }
+});
+
+router.get("/myProducts", authMiddleware, async (req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+        const userId = await req.user?.id;
+        if (!userId) return res.status(401).json({ message: "인증 정보가 유효하지 않습니다." });
+
+        const myProducts = await Product.find({ sellerId: userId }).sort({ createdAt: -1 });
+
+        res.status(200).json({ products: myProducts });
+    } catch (error) {
+        console.error("내 상품 조회 실패:", error);
+        next(error);
+    }
+});
+
+router.patch("/status/:id", authMiddleware, async (req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+        const { id } = req.params;
+        const { status } = req.body;
+        const userId = req.user?.id;
+
+        const product = await Product.findById(id);
+        if (!product) return res.status(404).json({ message: "상품 없음" });
+
+        if (product.sellerId.toString() !== userId?.toString()) {
+            return res.status(403).json({ message: "수정 권한이 없습니다." });
+        }
+
+        product.status = status;
+        await product.save();
+
+        res.status(200).json({ message: "상태 변경 성공", product });
+    } catch (error) {
+        console.error("상태 변경 실패:", error);
+        next(error);
     }
 });
 

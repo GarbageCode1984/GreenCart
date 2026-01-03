@@ -72,3 +72,13 @@ export const searchProduct = async (keyword: string, page: number = 1, limit: nu
         throw new Error(errorMessage);
     }
 };
+
+export const getMyProducts = async (): Promise<Product[]> => {
+    const response = await axiosInstance.get("/products/myProducts");
+    return response.data.products;
+};
+
+export const updateProductStatus = async (productId: string, status: "FOR_SALE" | "SOLD_OUT") => {
+    const response = await axiosInstance.patch(`/products/status/${productId}`, { status });
+    return response.data.product;
+};
