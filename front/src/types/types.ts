@@ -30,6 +30,7 @@ export interface Product {
     images: (File | undefined)[] | null;
     sellerId: string;
     sellerName: string;
+    status: string;
 }
 
 export interface SearchResponse {

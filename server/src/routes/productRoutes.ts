@@ -288,7 +288,7 @@ router.delete("/delete/:id", authMiddleware, async (req: AuthRequest, res: Respo
 
 router.get("/myProducts", authMiddleware, async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-        const userId = await req.user?.id;
+        const userId = req.user?.id;
         if (!userId) return res.status(401).json({ message: "인증 정보가 유효하지 않습니다." });
 
         const myProducts = await Product.find({ sellerId: userId }).sort({ createdAt: -1 });
