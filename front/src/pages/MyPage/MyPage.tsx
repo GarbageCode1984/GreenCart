@@ -1,4 +1,4 @@
-import { deleteProduct, getMyProducts, updateProductStatus } from "@/api/products";
+import { getMyProducts, updateProductStatus } from "@/api/products";
 import { colors } from "@/constants";
 import { useAuthStore } from "@/store/useAuthStore";
 import { Product } from "@/types/types";
@@ -50,18 +50,6 @@ const MyPage = () => {
             setMyProducts((prev) => prev.map((p) => (p._id === productId ? { ...p, status: newStatus } : p)));
         } catch (error) {
             console.error(error);
-        }
-    };
-
-    const handleDelete = async (productId: string) => {
-        if (!window.confirm("정말로 이 상품을 삭제하시겠습니까?")) return;
-        try {
-            await deleteProduct(productId);
-            setMyProducts((prev) => prev.filter((p) => p._id !== productId));
-            toast.success("상품이 삭제되었습니다.");
-        } catch (error) {
-            console.error(error);
-            toast.error("삭제 실패");
         }
     };
 
@@ -133,14 +121,6 @@ const MyPage = () => {
                                                 $active={product.status === "FOR_SALE"}
                                             >
                                                 {product.status === "FOR_SALE" ? "판매완료로 변경" : "판매중으로 변경"}
-                                            </ActionButton>
-                                            <ActionButton
-                                                onClick={() => navigate(`/seller/edit-product/${product._id}`)}
-                                            >
-                                                수정
-                                            </ActionButton>
-                                            <ActionButton $danger onClick={() => handleDelete(product._id)}>
-                                                삭제
                                             </ActionButton>
                                         </ActionButtons>
                                     </Info>
@@ -365,9 +345,6 @@ const Title = styled.h3`
     margin-bottom: 8px;
     cursor: pointer;
     color: #333;
-    &:hover {
-        text-decoration: underline;
-    }
 `;
 
 const Price = styled.div`

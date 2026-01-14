@@ -27,20 +27,14 @@ const extractAuthData = (req: Request, res: Response): { token: string; jwtSecre
     return { token, jwtSecret };
 };
 
-export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
+export const verifyToken = (req: Request, res: Response, next: NextFunction) => {
     const data = extractAuthData(req, res);
     if (!data) return;
     const { token, jwtSecret } = data;
 
     jwt.verify(token, jwtSecret, (err, decoded) => {
         if (err) {
-            let errorMessage = "유효하지 않은 토큰입니다.";
-            if (err.name === "TokenExpiredError") {
-                errorMessage = "인증 토큰이 만료되었습니다.";
-            } else if (err.name === "JsonWebTokenError") {
-                errorMessage = "잘못된 형식의 토큰입니다.";
-            }
-            return res.status(401).json({ message: errorMessage });
+            return handleJwtError(res, err);
         } else {
             (req as any).user = decoded;
             next();
@@ -48,7 +42,7 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
     });
 };
 
-export const protect = async (req: AuthRequest, res: Response, next: NextFunction) => {
+export const authenticate = async (req: AuthRequest, res: Response, next: NextFunction) => {
     const data = extractAuthData(req, res);
     if (!data) return;
     const { token, jwtSecret } = data;
@@ -64,12 +58,16 @@ export const protect = async (req: AuthRequest, res: Response, next: NextFunctio
         req.user = user;
         next();
     } catch (err: any) {
-        let errorMessage = "유효하지 않은 토큰입니다.";
-        if (err.name === "TokenExpiredError") {
-            errorMessage = "인증 토큰이 만료되었습니다.";
-        } else if (err.name === "JsonWebTokenError") {
-            errorMessage = "잘못된 형식의 토큰입니다.";
-        }
-        return res.status(401).json({ message: errorMessage });
+        return handleJwtError(res, err);
     }
+};
+
+const handleJwtError = (res: Response, err: any) => {
+    let message = "유효하지 않은 토큰입니다.";
+    if (err.name === "TokenExpiredError") {
+        message = "토큰 유효기간이 만료되었습니다. 다시 로그인해주세요.";
+    } else if (err.name === "JsonWebTokenError") {
+        message = "잘못된 형식의 토큰입니다.";
+    }
+    return res.status(401).json({ message });
 };
