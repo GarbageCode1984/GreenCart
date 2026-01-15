@@ -1,12 +1,12 @@
 import express, { Request, Response } from "express";
 import User from "../models/User";
 import jwt from "jsonwebtoken";
-import { authMiddleware, AuthRequest } from "../middleware/auth";
+import { authenticate, AuthRequest } from "../middleware/auth";
 import { Types } from "mongoose";
 
 const router = express.Router();
 
-router.get("/auth", authMiddleware, async (req: Request, res: Response) => {
+router.get("/auth", authenticate, async (req: Request, res: Response) => {
     res.status(200).json({ message: "인증 성공" });
 });
 
@@ -67,7 +67,7 @@ router.post("/login", async (req: Request, res: Response) => {
     }
 });
 
-router.post("/wishlist/:productId", authMiddleware, async (req: AuthRequest, res: Response) => {
+router.post("/wishlist/:productId", authenticate, async (req: AuthRequest, res: Response) => {
     try {
         const userId = req.user?.id;
         const { productId } = req.params;
@@ -106,7 +106,7 @@ router.post("/wishlist/:productId", authMiddleware, async (req: AuthRequest, res
     }
 });
 
-router.get("/wishlist", authMiddleware, async (req: AuthRequest, res: Response) => {
+router.get("/wishlist", authenticate, async (req: AuthRequest, res: Response) => {
     try {
         const userId = req.user?.id;
 

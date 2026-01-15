@@ -27,21 +27,6 @@ const extractAuthData = (req: Request, res: Response): { token: string; jwtSecre
     return { token, jwtSecret };
 };
 
-export const verifyToken = (req: Request, res: Response, next: NextFunction) => {
-    const data = extractAuthData(req, res);
-    if (!data) return;
-    const { token, jwtSecret } = data;
-
-    jwt.verify(token, jwtSecret, (err, decoded) => {
-        if (err) {
-            return handleJwtError(res, err);
-        } else {
-            (req as any).user = decoded;
-            next();
-        }
-    });
-};
-
 export const authenticate = async (req: AuthRequest, res: Response, next: NextFunction) => {
     const data = extractAuthData(req, res);
     if (!data) return;

@@ -2,9 +2,8 @@ import express, { NextFunction, Request, Response } from "express";
 import multer from "multer";
 import path from "path";
 import Product from "../models/Product";
-import { authMiddleware, AuthRequest, protect } from "../middleware/auth";
+import { authenticate, AuthRequest } from "../middleware/auth";
 import fs from "fs";
-import { error } from "console";
 
 const router = express.Router();
 
@@ -47,7 +46,7 @@ interface CustomRequest extends AuthRequest {
 
 router.post(
     "/create",
-    protect,
+    authenticate,
     upload.array("images", 5),
     async (req: CustomRequest, res: Response, next: NextFunction) => {
         try {
@@ -174,7 +173,7 @@ router.get("/getProductDetail/:id", async (req: Request, res: Response, next: Ne
 
 router.patch(
     "/update/:id",
-    authMiddleware,
+    authenticate,
     upload.fields([{ name: "newImages", maxCount: 5 }]),
     async (req: AuthRequest, res: Response) => {
         const productId = req.params.id;
@@ -241,7 +240,7 @@ router.patch(
     }
 );
 
-router.delete("/delete/:id", authMiddleware, async (req: AuthRequest, res: Response) => {
+router.delete("/delete/:id", authenticate, async (req: AuthRequest, res: Response) => {
     const productId = req.params.id;
     const userId = req.user?.id;
 
@@ -286,7 +285,7 @@ router.delete("/delete/:id", authMiddleware, async (req: AuthRequest, res: Respo
     }
 });
 
-router.get("/myProducts", authMiddleware, async (req: AuthRequest, res: Response, next: NextFunction) => {
+router.get("/myProducts", authenticate, async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
         const userId = req.user?.id;
         if (!userId) return res.status(401).json({ message: "인증 정보가 유효하지 않습니다." });
@@ -300,7 +299,7 @@ router.get("/myProducts", authMiddleware, async (req: AuthRequest, res: Response
     }
 });
 
-router.patch("/status/:id", authMiddleware, async (req: AuthRequest, res: Response, next: NextFunction) => {
+router.patch("/status/:id", authenticate, async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
         const { id } = req.params;
         const { status } = req.body;
