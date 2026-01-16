@@ -123,6 +123,11 @@ const ProductDetailPage = () => {
     const handleEdit = () => {
         try {
             if (!isOwner || !product) return;
+            if (product.status === "SOLD_OUT") {
+                toast.warning("판매 완료된 상품은 수정할 수 없습니다.");
+                return;
+            }
+
             if (product) {
                 navigate(`/seller/edit-product/${product._id}`, { state: { productToEdit: product } });
             }
@@ -144,6 +149,10 @@ const ProductDetailPage = () => {
 
     const handleDelete = async () => {
         if (!product || !product._id) return;
+        if (product.status === "SOLD_OUT") {
+            toast.warning("판매 완료된 상품은 삭제할 수 없습니다.");
+            return;
+        }
 
         const confirmDelete = window.confirm("정말로 이 상품을 삭제하시겠습니까?\n 삭제된 상품은 복구가 불가능합니다.");
 
@@ -184,6 +193,12 @@ const ProductDetailPage = () => {
                             />
                         ) : (
                             <NoImagePlaceholder>No Image</NoImagePlaceholder>
+                        )}
+
+                        {product.status === "SOLD_OUT" && (
+                            <SoldOverlay>
+                                <SoldText>판매완료</SoldText>
+                            </SoldOverlay>
                         )}
                     </ImageCarousel>
 
@@ -248,10 +263,18 @@ const ProductDetailPage = () => {
                             </>
                         ) : (
                             <>
-                                <CustomButton variant="green" onClick={handleContactSeller}>
+                                <CustomButton
+                                    variant="green"
+                                    onClick={handleContactSeller}
+                                    disabled={product.status === "SOLD_OUT"}
+                                >
                                     판매자에게 연락하기
                                 </CustomButton>
-                                <CustomButton variant={isWished ? "gray" : "blue"} onClick={handleAddToWishlist}>
+                                <CustomButton
+                                    variant={isWished ? "gray" : "blue"}
+                                    onClick={handleAddToWishlist}
+                                    disabled={product.status === "SOLD_OUT"}
+                                >
                                     {isWished ? "관심 상품 해제" : "관심 상품 등록"}
                                 </CustomButton>
                             </>
@@ -473,6 +496,29 @@ const MessageBox = styled.div<{ isError?: boolean }>`
     border: 1px solid ${(props) => (props.isError ? colors.RED : colors.GRAY_75)};
     border-radius: 8px;
     margin-top: 50px;
+`;
+
+const SoldOverlay = styled.div`
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+`;
+
+const SoldText = styled.span`
+    color: white;
+    font-size: 2rem;
+    font-weight: 800;
+    border: 3px solid white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    transform: rotate(-15deg);
 `;
 
 export default ProductDetailPage;

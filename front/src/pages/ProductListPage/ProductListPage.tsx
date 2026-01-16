@@ -74,6 +74,8 @@ const ProductListPage = () => {
                                 ) : (
                                     <NoImagePlaceholder>No Image</NoImagePlaceholder>
                                 )}
+
+                                {product.status === "SOLD_OUT" && <SoldOutOverlay>판매완료</SoldOutOverlay>}
                             </ProductThumbnail>
 
                             <InfoWrapper>
@@ -124,6 +126,8 @@ const ProductCard = styled.div`
     overflow: hidden;
     cursor: pointer;
     transition: transform 0.2s ease-in-out;
+    position: relative;
+    z-index: 1;
 
     &:hover {
         transform: translateY(-5px);
@@ -155,6 +159,22 @@ const NoImagePlaceholder = styled.div`
     color: ${colors.GRAY_100};
     font-size: 1.2em;
     font-weight: bold;
+`;
+
+const SoldOutOverlay = styled.div`
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 1.2rem;
+    z-index: 10;
 `;
 
 const InfoWrapper = styled.div`
