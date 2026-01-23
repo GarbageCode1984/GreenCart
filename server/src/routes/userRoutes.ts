@@ -127,4 +127,57 @@ router.get("/wishlist", authenticate, async (req: AuthRequest, res: Response) =>
     }
 });
 
+router.patch("/profile", authenticate, async (req: AuthRequest, res: Response) => {
+    try {
+        const userId = req.user?._id;
+        const { name, currentPassword, newPassword } = req.body;
+
+        const user = await User.findById(userId).select("+password");
+        if (!user) return res.status(404).json({ message: "유저를 찾을 수 없습니다." });
+
+        if (name) user.name = name;
+
+        if (currentPassword && newPassword) {
+            const isMatch = await user.comparePassword(currentPassword);
+            if (!isMatch) {
+                return res.status(400).json({ message: "현재 비밀번호가 일치하지 않습니다." });
+            }
+            user.password = newPassword;
+        }
+
+        await user.save();
+
+        const updatedUser = {
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            wishlist: user.wishlist,
+        };
+
+        res.status(200).json({
+            message: "회원 정보가 성공적으로 수정되었습니다.",
+            user: updatedUser,
+        });
+    } catch (error) {
+        console.error("Profile update error:", error);
+        res.status(500).json({ message: "정보 수정 중 오류가 발생했습니다." });
+    }
+});
+
+router.delete("/withdraw", authenticate, async (req: AuthRequest, res: Response) => {
+    try {
+        const userId = req.user?._id;
+        if (!userId) return res.status(401).json({ message: "권한이 없습니다." });
+
+        await User.findByIdAndDelete(userId);
+        // await Product.deleteMany({ sellerId: userId });
+
+        res.status(200).json({ message: "회원 탈퇴가 완료되었습니다." });
+    } catch (error) {
+        console.error("Withdraw error:", error);
+        res.status(500).json({ message: "회원 탈퇴 처리 중 오류가 발생했습니다." });
+    }
+});
+
 export default router;

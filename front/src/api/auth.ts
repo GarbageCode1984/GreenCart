@@ -48,3 +48,12 @@ export async function loginUser(data: LoginFormData) {
         throw new Error(errorMessage);
     }
 }
+export const updateProfile = async (data: { name?: string; currentPassword?: string; newPassword?: string }) => {
+    const response = await axiosInstance.patch("/users/profile", data);
+    return response.data;
+};
+
+export const withdrawUser = async () => {
+    const response = await axiosInstance.delete("/users/withdraw");
+    return response.data;
+};

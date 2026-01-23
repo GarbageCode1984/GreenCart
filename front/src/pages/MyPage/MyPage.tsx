@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import styled from "styled-components";
+import ProfileEdit from "./ProfileEdit";
 
 const MyPage = () => {
     const navigate = useNavigate();
@@ -115,7 +116,7 @@ const MyPage = () => {
                                                 onClick={() =>
                                                     handleStatusToggle(
                                                         product._id,
-                                                        product.status as "FOR_SALE" | "SOLD_OUT"
+                                                        product.status as "FOR_SALE" | "SOLD_OUT",
                                                     )
                                                 }
                                                 $active={product.status === "FOR_SALE"}
@@ -134,11 +135,8 @@ const MyPage = () => {
 
                 {activeTab === "info" && (
                     <EmptyState>
-                        내 정보 수정 기능은 준비 중입니다.
-                        <br />
-                        (여기에 ProfileEdit 컴포넌트)
+                        <ProfileEdit />
                     </EmptyState>
-                    // <ProfileEdit />
                 )}
 
                 {activeTab === "chat" && <EmptyState>구매자와의 1:1 대화방 기능이 곧 추가될 예정입니다. 🚀</EmptyState>}
