@@ -24,7 +24,7 @@ UI/UX: 상태 관리(Zustand)와 낙관적 업데이트를 적용한 즉각적�
 
 💻 실행 방법
 
-1. 패키지 설치
+# 1. 패키지 설치
 
 # 프론트엔드 종속성 설치
 
@@ -38,13 +38,13 @@ cd backend
 
 npm install
 
-2. 환경 변수 설정 (.env)
+# 2. 환경 변수 설정 (.env)
 
 프론트엔드 루트와 backend 폴더에 각각 .env 파일을 만들고 아래 변수를 설정합니다.
 
 VITE_KAKAO_REST_API_KEY, MONGO_URI, JWT_SECRET 등
 
-3. 프로젝트 실행
+# 3. 프로젝트 실행
 
 # 프론트엔드 실행 (새 터미널)
 
