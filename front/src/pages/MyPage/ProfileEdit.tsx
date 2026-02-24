@@ -14,6 +14,7 @@ const ProfileEdit = () => {
     const [name, setName] = useState(userData?.name || "");
     const [currentPassword, setCurrentPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
+    const [confirmNewPassword, setConfirmNewPassword] = useState("");
 
     const handleUpdate = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -22,6 +23,10 @@ const ProfileEdit = () => {
 
         if (newPassword && !currentPassword) {
             return toast.warning("비밀번호를 변경하려면 현재 비밀번호가 필요합니다.");
+        }
+
+        if (newPassword && newPassword !== confirmNewPassword) {
+            return toast.warning("새 비밀번호가 일치하지 않습니다. 다시 확인해주세요.");
         }
 
         try {
@@ -39,6 +44,9 @@ const ProfileEdit = () => {
 
             setCurrentPassword("");
             setNewPassword("");
+            setConfirmNewPassword("");
+
+            navigate("/");
         } catch (error) {
             console.error(error);
             toast.error(error.response?.data?.message || "수정에 실패했습니다.");
@@ -94,6 +102,14 @@ const ProfileEdit = () => {
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
                         placeholder="새 비밀번호"
+                        style={{ marginTop: "8px" }}
+                        autoComplete="new-password"
+                    />
+                    <Input
+                        type="password"
+                        value={confirmNewPassword}
+                        onChange={(e) => setConfirmNewPassword(e.target.value)}
+                        placeholder="새 비밀번호 확인"
                         style={{ marginTop: "8px" }}
                         autoComplete="new-password"
                     />

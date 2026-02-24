@@ -1,5 +1,5 @@
 import { searchProduct } from "@/api/products";
-import { colors } from "@/constants";
+import { colors, SERVER_URL } from "@/constants";
 import { Product } from "@/types/types";
 import { useEffect, useState } from "react";
 import { FiAlertCircle } from "react-icons/fi";
@@ -72,10 +72,7 @@ const SearchPage = () => {
                             <ProductCard key={product._id} onClick={() => navigate(`/products/${product._id}`)}>
                                 <ProductThumbnail>
                                     {product.images?.[0] ? (
-                                        <ProductImage
-                                            src={`http://localhost:5000${product.images[0]}`}
-                                            alt={product.name}
-                                        />
+                                        <ProductImage src={`${SERVER_URL}${product.images[0]}`} alt={product.name} />
                                     ) : (
                                         <NoImagePlaceholder>No Image</NoImagePlaceholder>
                                     )}

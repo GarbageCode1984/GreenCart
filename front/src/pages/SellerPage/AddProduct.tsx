@@ -273,10 +273,10 @@ const ImageUploaderContainer = styled.div<{ error?: boolean; isFull?: boolean; i
             props.error
                 ? colors.RED
                 : props.isDragActive
-                ? colors.BLUE_50
-                : props.isFull
-                ? colors.GRAY_100
-                : colors.GRAY_25};
+                  ? colors.BLUE_50
+                  : props.isFull
+                    ? colors.GRAY_100
+                    : colors.GRAY_25};
     border-radius: 8px;
     padding: 30px;
     text-align: center;
@@ -375,7 +375,9 @@ const Select = styled.select<{ error?: boolean }>`
     background-position: right 10px center;
     background-size: 16px;
     cursor: pointer;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    transition:
+        border-color 0.3s ease,
+        box-shadow 0.3s ease;
 
     &:focus {
         outline: none;

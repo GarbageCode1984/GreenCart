@@ -4,12 +4,20 @@ import path from "path";
 import Product from "../models/Product";
 import { authenticate, AuthRequest } from "../middleware/auth";
 import fs from "fs";
+import Conversation from "../models/Conversation";
+import Message from "../models/Message";
 
 const router = express.Router();
 
+const uploadDir = path.join(process.cwd(), "uploads");
+if (!fs.existsSync(uploadDir)) {
+    console.log("uploads 폴더가 없어 새로 생성합니다.");
+    fs.mkdirSync(uploadDir, { recursive: true });
+}
+
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, "uploads/");
+        cb(null, uploadDir);
     },
     filename: (req, file, cb) => {
         cb(null, `${file.fieldname}-${Date.now()}${path.extname(file.originalname)}`);
@@ -94,7 +102,7 @@ router.post(
             console.error("상품 등록 처리 중 에러 발생", error);
             next(error);
         }
-    }
+    },
 );
 
 router.get("/findAllProduct", async (req: Request, res: Response, next: NextFunction) => {
@@ -132,7 +140,13 @@ router.get("/search", async (req: Request, res: Response, next: NextFunction) =>
             return res.status(400).json({ message: "검색어를 입력해주세요." });
         }
 
-        const query = { $or: [{ name: { $regex: q, $options: "i" } }, { hashtag: { $regex: q, $options: "i" } }] };
+        const query = {
+            $or: [
+                { name: { $regex: q, $options: "i" } },
+                { hashtag: { $regex: q, $options: "i" } },
+                { region: { $regex: q, $options: "i" } },
+            ],
+        };
 
         const totalCount = await Product.countDocuments(query);
         const totalPages = Math.ceil(totalCount / limit);
@@ -226,7 +240,7 @@ router.patch(
             const updatedProduct = await Product.findByIdAndUpdate(
                 productId,
                 { $set: totalData },
-                { new: true, runValidators: true }
+                { new: true, runValidators: true },
             );
 
             res.status(200).json({
@@ -237,7 +251,7 @@ router.patch(
             console.error("Product update error:", error);
             res.status(500).json({ message: "상품 수정 중 서버 오류가 발생했습니다.", error: error.message });
         }
-    }
+    },
 );
 
 router.delete("/delete/:id", authenticate, async (req: AuthRequest, res: Response) => {
@@ -277,6 +291,13 @@ router.delete("/delete/:id", authenticate, async (req: AuthRequest, res: Respons
         }
 
         await Product.findByIdAndDelete(productId);
+
+        // 상품이 삭제될 때 얽혀있는 채팅방과 모든 메시지도 함께 폭파
+        const conversations = await Conversation.find({ productId });
+        const conversationIds = conversations.map((c) => c._id);
+
+        await Message.deleteMany({ conversationId: { $in: conversationIds } });
+        await Conversation.deleteMany({ productId });
 
         res.status(204).send();
     } catch (error: any) {

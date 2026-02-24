@@ -1,12 +1,13 @@
 import { getMyProducts, updateProductStatus } from "@/api/products";
-import { colors } from "@/constants";
+import { colors, SERVER_URL } from "@/constants";
 import { useAuthStore } from "@/store/useAuthStore";
-import { Product } from "@/types/types";
+import { Conversation, Product } from "@/types/types";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import styled from "styled-components";
 import ProfileEdit from "./ProfileEdit";
+import { getUserConversations } from "@/api/chat";
 
 const MyPage = () => {
     const navigate = useNavigate();
@@ -15,8 +16,7 @@ const MyPage = () => {
     const [activeTab, setActiveTab] = useState<"sales" | "info" | "chat">("sales");
     const [myProducts, setMyProducts] = useState<Product[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-
-    const SERVER_URL = "http://localhost:5000";
+    const [conversations, setConversations] = useState<Conversation[]>([]);
 
     useEffect(() => {
         if (!isAuth) {
@@ -26,22 +26,27 @@ const MyPage = () => {
         }
 
         const getMyData = async () => {
-            if (activeTab === "sales") {
-                setIsLoading(true);
+            if (activeTab === "info") return;
 
-                try {
+            setIsLoading(true);
+
+            try {
+                if (activeTab === "sales") {
                     const products = await getMyProducts();
                     setMyProducts(products);
-                } catch (error) {
-                    console.error("데이터 로딩 실패:", error);
-                } finally {
-                    setIsLoading(false);
+                } else if (activeTab === "chat" && userData?._id) {
+                    const chatList = await getUserConversations(userData._id);
+                    setConversations(chatList);
                 }
+            } catch (error) {
+                console.error("데이터 로딩 실패:", error);
+            } finally {
+                setIsLoading(false);
             }
         };
 
         getMyData();
-    }, [isAuth, activeTab, navigate]);
+    }, [isAuth, activeTab, navigate, userData?._id]);
 
     const handleStatusToggle = async (productId: string, currentStatus: "FOR_SALE" | "SOLD_OUT") => {
         const newStatus = currentStatus === "FOR_SALE" ? "SOLD_OUT" : "FOR_SALE";
@@ -70,7 +75,7 @@ const MyPage = () => {
                         ⚙️ 내 정보 수정
                     </MenuItem>
                     <MenuItem $active={activeTab === "chat"} onClick={() => setActiveTab("chat")}>
-                        💬 1:1 대화방 (준비중)
+                        💬 1:1 대화방
                     </MenuItem>
                 </Menu>
             </Sidebar>
@@ -139,7 +144,43 @@ const MyPage = () => {
                     </EmptyState>
                 )}
 
-                {activeTab === "chat" && <EmptyState>구매자와의 1:1 대화방 기능이 곧 추가될 예정입니다. 🚀</EmptyState>}
+                {activeTab === "chat" && (
+                    <ChatListContainer>
+                        {isLoading ? (
+                            <LoadingText>채팅방 목록을 불러오는 중입니다...</LoadingText>
+                        ) : conversations.length > 0 ? (
+                            conversations.map((chat) => (
+                                <ChatItem key={chat._id} onClick={() => navigate(`/chat/${chat._id}`)}>
+                                    <ChatAvatarWrapper>
+                                        {chat.productId?.images?.[0] ? (
+                                            <ChatAvatar
+                                                src={`${SERVER_URL}${chat.productId.images[0]}`}
+                                                alt="상품 이미지"
+                                            />
+                                        ) : (
+                                            <NoAvatarImage>
+                                                No
+                                                <br />
+                                                Image
+                                            </NoAvatarImage>
+                                        )}
+                                    </ChatAvatarWrapper>
+                                    <ChatInfo>
+                                        <ChatProductName>{chat.productId?.name || "알 수 없는 상품"}</ChatProductName>
+                                        <ChatLastMessage>대화방에 입장하여 메시지를 확인해보세요.</ChatLastMessage>
+                                    </ChatInfo>
+                                    <ChatEnterButton>입장하기</ChatEnterButton>
+                                </ChatItem>
+                            ))
+                        ) : (
+                            <EmptyState>
+                                현재 참여 중인 1:1 대화방이 없습니다.
+                                <br />
+                                상품 페이지에서 '판매자에게 연락하기'를 눌러 대화를 시작해보세요!
+                            </EmptyState>
+                        )}
+                    </ChatListContainer>
+                )}
             </ContentArea>
         </Container>
     );
@@ -386,4 +427,92 @@ const LoadingText = styled.div`
     text-align: center;
     padding: 50px;
     color: #888;
+`;
+
+const ChatListContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+`;
+
+const ChatItem = styled.div`
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    background-color: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        border-color: ${colors.GREEN_100 || "#2E7D32"};
+    }
+`;
+
+const ChatAvatarWrapper = styled.div`
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+    background-color: #f5f5f5;
+    margin-right: 20px;
+    border: 1px solid #eee;
+`;
+
+const ChatAvatar = styled.img`
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+`;
+
+const NoAvatarImage = styled.div`
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #bbb;
+    font-size: 0.75rem;
+    text-align: center;
+`;
+
+const ChatInfo = styled.div`
+    flex: 1;
+`;
+
+const ChatProductName = styled.h3`
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 6px;
+`;
+
+const ChatLastMessage = styled.p`
+    font-size: 0.9rem;
+    color: #777;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 90%;
+`;
+
+const ChatEnterButton = styled.button`
+    padding: 8px 16px;
+    border-radius: 20px;
+    background-color: ${colors.GREEN_50 || "#e8f5e9"};
+    color: ${colors.GREEN_300 || "#1b5e20"};
+    border: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+
+    ${ChatItem}:hover & {
+        background-color: ${colors.GREEN_100 || "#2E7D32"};
+        color: white;
+    }
 `;

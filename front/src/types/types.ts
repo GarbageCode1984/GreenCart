@@ -44,3 +44,22 @@ export interface Category {
     id: string;
     name: string;
 }
+export interface Message {
+    _id?: string;
+    conversationId: string;
+    sender: string;
+    text: string;
+    createdAt: string;
+}
+
+export interface Conversation {
+    _id: string;
+    members: string[];
+    productId: {
+        _id: string;
+        name: string;
+        images: string[];
+        sellerId: string;
+    };
+    updatedAt: string;
+}

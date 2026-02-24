@@ -1,8 +1,9 @@
 import { useAuthStore } from "@/store/useAuthStore";
 import axios, { AxiosError } from "axios";
+import { SERVER_URL } from "../constants";
 
-const axiosInstance = axios.create({
-    baseURL: import.meta.env.PROD ? "" : "http://localhost:5000",
+export const axiosInstance = axios.create({
+    baseURL: SERVER_URL,
 });
 
 axiosInstance.interceptors.request.use(
@@ -15,7 +16,7 @@ axiosInstance.interceptors.request.use(
     },
     function (error) {
         return Promise.reject(error);
-    }
+    },
 );
 
 axiosInstance.interceptors.response.use(
@@ -34,7 +35,7 @@ axiosInstance.interceptors.response.use(
         }
 
         return Promise.reject(error);
-    }
+    },
 );
 
 export default axiosInstance;

@@ -57,3 +57,8 @@ export const withdrawUser = async () => {
     const response = await axiosInstance.delete("/users/withdraw");
     return response.data;
 };
+
+export const kakaoLogin = async (code: string) => {
+    const response = await axiosInstance.post("/users/auth/kakao", { code });
+    return response.data;
+};

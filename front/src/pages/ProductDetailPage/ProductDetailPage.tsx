@@ -8,6 +8,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import styled from "styled-components";
+import { createConversation } from "@/api/chat";
+import { SERVER_URL } from "@/constants";
 
 const parseHashtags = (hashtagString: string | undefined): string[] => {
     if (!hashtagString) return [];
@@ -86,8 +88,30 @@ const ProductDetailPage = () => {
         setCurrentImageIndex(index);
     };
 
-    const handleContactSeller = () => {
-        toast.success(`판매자 '${product.sellerName || "정보 없음"}'에게 연락`);
+    const handleContactSeller = async () => {
+        if (!isAuth || !userData) {
+            toast.warning("로그인이 필요한 서비스입니다.");
+            return;
+        }
+        if (!product) return;
+
+        if (userData._id === product.sellerId) {
+            toast.warning("본인 상품에는 문의할 수 없습니다.");
+            return;
+        }
+
+        try {
+            const conversation = await createConversation({
+                senderId: userData._id,
+                receiverId: product.sellerId,
+                productId: product._id,
+            });
+
+            navigate(`/chat/${conversation._id}`);
+        } catch (error) {
+            console.error("채팅방 생성 실패:", error);
+            toast.error("채팅방으로 이동할 수 없습니다.");
+        }
     };
 
     const handleAddToWishlist = async () => {
@@ -188,7 +212,7 @@ const ProductDetailPage = () => {
 
                         {product.images && product.images.length > 0 ? (
                             <ProductImage
-                                src={`http://localhost:5000${product.images[currentImageIndex]}`}
+                                src={`${SERVER_URL}${product.images[currentImageIndex]}`}
                                 alt={product.name}
                             />
                         ) : (
@@ -207,7 +231,7 @@ const ProductDetailPage = () => {
                             {product.images.map((image, index) => (
                                 <ThumbnailItem
                                     key={index}
-                                    src={`http://localhost:5000${image}`}
+                                    src={`${SERVER_URL}${image}`}
                                     alt={`Thumbnail ${index}`}
                                     isActive={index === currentImageIndex}
                                     onClick={() => handleImageChange(index)}

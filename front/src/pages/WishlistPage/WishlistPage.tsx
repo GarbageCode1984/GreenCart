@@ -1,6 +1,6 @@
 import { getWishlist } from "@/api/wishlist";
 import CustomButton from "@/components/Common/CustomButton";
-import { colors } from "@/constants";
+import { colors, SERVER_URL } from "@/constants";
 import { useAuthStore } from "@/store/useAuthStore";
 import { Product } from "@/types/types";
 import { useEffect, useState } from "react";
@@ -15,8 +15,6 @@ const WishlistPage = () => {
 
     const [products, setProducts] = useState<Product[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-
-    const SERVER_URL = "http://localhost:5000";
 
     useEffect(() => {
         const fetchWishlist = async () => {
@@ -158,7 +156,9 @@ const ProductCard = styled.div`
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition:
+        transform 0.2s,
+        box-shadow 0.2s;
     cursor: pointer;
     border: 1px solid #f0f0f0;
 

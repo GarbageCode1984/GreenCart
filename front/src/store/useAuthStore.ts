@@ -10,12 +10,16 @@ interface AuthState {
         role: string;
         wishlist: string[];
     } | null;
+
+    notificationCount: number;
 }
 
 interface AuthActions {
     login: (user: AuthState["userData"]) => void;
     logout: () => void;
     setUser: (user: AuthState["userData"]) => void;
+    addNotification: () => void;
+    clearNotifications: () => void;
 }
 
 type AuthStore = AuthState & AuthActions;
@@ -25,6 +29,7 @@ export const useAuthStore = create<AuthStore>()(
         (set) => ({
             isAuth: false,
             userData: null,
+            notificationCount: 0,
 
             login: (user) =>
                 set({
@@ -36,13 +41,23 @@ export const useAuthStore = create<AuthStore>()(
                 set({
                     isAuth: false,
                     userData: null,
+                    notificationCount: 0,
                 }),
 
-            setUser: (user) => set((state) => ({ ...state, userData: user, isAuth: !!user })),
+            setUser: (user) =>
+                set((state) => ({
+                    ...state,
+                    userData: user,
+                    isAuth: !!user,
+                })),
+
+            addNotification: () => set((state) => ({ notificationCount: state.notificationCount + 1 })),
+
+            clearNotifications: () => set({ notificationCount: 0 }),
         }),
         {
             name: "auth-storage",
             storage: createJSONStorage(() => localStorage),
-        }
-    )
+        },
+    ),
 );
