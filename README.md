@@ -47,9 +47,11 @@ VITE_KAKAO_REST_API_KEY, MONGO_URI, JWT_SECRET 등
 # 프론트엔드 실행 (새 터미널)
 
 cd front
+
 yarn dev
 
 # 백엔드 실행 (새 터미널)
 
 cd backend
+
 npm run dev
