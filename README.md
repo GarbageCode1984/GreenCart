@@ -27,11 +27,13 @@ UI/UX: 상태 관리(Zustand)와 낙관적 업데이트를 적용한 즉각적�
 # 프론트엔드 종속성 설치
 
 cd front
+
 npm install
 
 # 백엔드 종속성 설치
 
 cd backend
+
 npm install
 
 2. 환경 변수 설정 (.env)
