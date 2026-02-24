@@ -1,4 +1,4 @@
-https://github.com/GarbageCode1984/GreenCart/issues/2#issue-3981368902
+<img width="1888" height="932" alt="Image" src="https://github.com/user-attachments/assets/c54cd4ac-dc02-4159-af54-9e5df56ecf83" />
 
 🛒 GreenCart
 
