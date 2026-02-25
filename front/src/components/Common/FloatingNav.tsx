@@ -6,7 +6,7 @@ import { colors } from "@/constants";
 
 const FloatingNav = () => {
     const navigate = useNavigate();
-    const [isVisible, setIsVisible] = useState(false);
+    const [, setIsVisible] = useState(false);
 
     useEffect(() => {
         const toggleVisibility = () => {
