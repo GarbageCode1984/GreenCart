@@ -1,59 +1,41 @@
 <img width="1888" height="932" alt="Image" src="https://github.com/user-attachments/assets/c54cd4ac-dc02-4159-af54-9e5df56ecf83" />
 
-🛒 GreenCart
+# GreenCart
 
-중고거래 플랫폼입니다. 사용자 간의 실시간 1:1 채팅과 카카오 소셜 로그인을 지원합니다.
+GreenCart는 중고 거래 서비스를 구현한 풀스택 웹 애플리케이션입니다.  
+상품 등록, 이미지 업로드, 실시간 채팅 기능을 제공합니다.
 
-🛠 기술 스택
+배포 주소  
+https://green-cart-two.vercel.app/
 
-Frontend: React, TypeScript, Zustand, Styled-Components
+## 주요 기능
 
-Backend: Node.js, Express, Socket.io, MongoDB
+- 회원가입 / 로그인
+- 회원탈퇴
+- 상품 등록 / 수정 / 삭제
+- 상품 검색
+- 실시간 채팅
+- 판매 상태 변경 (판매중 / 판매완료)
+- Cloudinary 이미지 업로드 및 삭제
 
-✨ 주요 기능
+## 기술 스택
 
-간편 로그인: 카카오 API(OAuth 2.0)를 활용한 소셜 로그인 지원
+Frontend  
+- React
+- TypeScript
+- Styled-components
 
-실시간 채팅: Socket.io를 활용한 1:1 대화 및 전역 알림 기능
+Backend  
+- Node.js
+- Express
+- Socket.io
 
-상품 관리: 상품 등록, 수정, 삭제, 검색 및 페이지네이션
+Database  
+- MongoDB Atlas
 
-마이페이지: 내 판매 내역 관리, 찜한 상품 모아보기, 내 정보 수정
+Image Storage  
+- Cloudinary
 
-UI/UX: 상태 관리(Zustand)와 낙관적 업데이트를 적용한 즉각적인 하트(찜) 반응
-
-💻 실행 방법
-
-# 1. 패키지 설치
-
-# 프론트엔드 종속성 설치
-
-cd front
-
-yarn install
-
-# 백엔드 종속성 설치
-
-cd backend
-
-npm install
-
-# 2. 환경 변수 설정 (.env)
-
-프론트엔드 루트와 backend 폴더에 각각 .env 파일을 만들고 아래 변수를 설정합니다.
-
-VITE_KAKAO_REST_API_KEY, MONGO_URI, JWT_SECRET 등
-
-# 3. 프로젝트 실행
-
-# 프론트엔드 실행 (새 터미널)
-
-cd front
-
-yarn dev
-
-# 백엔드 실행 (새 터미널)
-
-cd backend
-
-npm run dev
+Deployment  
+- Vercel (Frontend)
+- Render (Backend)
