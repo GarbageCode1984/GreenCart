@@ -1,21 +1,25 @@
 import CustomButton from "@/components/Common/CustomButton";
 import CustomInput from "@/components/Common/CustomInput";
 import CustomTextarea from "@/components/Common/CustomTextarea";
-import { API_BASE_URL, colors } from "@/constants";
-import { Product } from "@/types/types";
+import { colors } from "@/constants";
+import { ProductForm } from "@/types/types";
 import { ProductSchema } from "@/utils/validation/productSchemas";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useCallback, useEffect, useState } from "react";
 import { Resolver, SubmitHandler, useForm, useWatch } from "react-hook-form";
 import styled from "styled-components";
 import { useImageUpload } from "@/hooks/useImageUpload";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { updateProduct } from "@/api/products";
-import { useLocation, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import regionsData from "@/constants/regionsData";
 
 const MAX_IMAGES = 5;
+
+type ExistingImage = {
+    url: string;
+    publicId: string;
+};
 
 const EditProduct = () => {
     const {
@@ -24,9 +28,9 @@ const EditProduct = () => {
         setValue,
         control,
         reset,
-        formState: { errors },
-    } = useForm<Product>({
-        resolver: yupResolver(ProductSchema) as unknown as Resolver<Product>,
+        formState: { errors, isSubmitting },
+    } = useForm<ProductForm>({
+        resolver: yupResolver(ProductSchema) as unknown as Resolver<ProductForm>,
         defaultValues: {
             name: "",
             price: 0,
@@ -44,9 +48,9 @@ const EditProduct = () => {
     const location = useLocation();
     const { productId } = useParams<{ productId: string | undefined }>();
 
-    const productToEdit = location.state?.productToEdit as Product | undefined;
+    const productToEdit = location.state?.productToEdit as ProductForm | undefined;
 
-    const [existingImages, setExistingImages] = useState<string[]>([]);
+    const [existingImages, setExistingImages] = useState<ExistingImage[]>([]);
 
     const {
         imageFiles: newImageFiles,
@@ -83,7 +87,7 @@ const EditProduct = () => {
 
     useEffect(() => {
         const loadProductData = async () => {
-            let productData: Product | null = null;
+            let productData: ProductForm | null = null;
 
             if (!productId) {
                 toast.error("유효하지 않은 상품 ID입니다.");
@@ -101,7 +105,6 @@ const EditProduct = () => {
 
                 if (productData.region) {
                     const parts = productData.region.split(" ").filter((part) => part.trim() !== "");
-
                     if (parts.length >= 1) {
                         defaultProvince = parts[0];
                         defaultCity = parts.slice(1).join(" ");
@@ -125,7 +128,16 @@ const EditProduct = () => {
                     }, 10);
                 }
 
-                setExistingImages((productData.images as unknown as string[]) || []);
+                const urls = ((productData.images as unknown as string[]) || []).map(String);
+
+                const ids = ((productData.imagePublicIds as unknown as string[]) || []).map(String);
+
+                setExistingImages(
+                    urls.map((url, i) => ({
+                        url,
+                        publicId: ids[i] || "",
+                    })),
+                );
             }
         };
 
@@ -139,38 +151,48 @@ const EditProduct = () => {
         });
     }, [newImageFiles, setValue]);
 
-    const handleRemoveExistingImage = useCallback((urlToRemove: string) => {
-        setExistingImages((prev) => prev.filter((url) => url !== urlToRemove));
+    const handleRemoveExistingImage = useCallback((idx: number) => {
+        setExistingImages((prev) => prev.filter((_, i) => i !== idx));
     }, []);
 
-    const handleEditProduct: SubmitHandler<Product> = async (data: Product) => {
+    const handleEditProduct: SubmitHandler<ProductForm> = async (data: ProductForm) => {
+        if (!productId) {
+            toast.error("유효하지 않은 상품 ID입니다.");
+            return;
+        }
+
         const formData = new FormData();
+
         formData.append("name", data.name);
         formData.append("price", data.price.toString());
         formData.append("region", data.region);
         formData.append("description", data.description || "");
         formData.append("hashtag", data.hashtag || "");
 
+        const keepImageUrls = existingImages.map((img) => img.url);
+        const keepPublicIds = existingImages.map((img) => img.publicId).filter(Boolean);
+
+        formData.append("existingImages", JSON.stringify(keepImageUrls));
+        formData.append("existingImagePublicIds", JSON.stringify(keepPublicIds));
+
         newImageFiles.forEach((file) => {
             formData.append("newImages", file);
         });
 
-        formData.append("existingImages", JSON.stringify(existingImages));
-
         try {
-            const productUpdateId = productId ?? "";
-            await updateProduct(productUpdateId, formData);
+            await updateProduct(productId, formData);
             toast.success("상품이 성공적으로 수정되었습니다!");
             navigate(`/products/${productId}`);
         } catch (error) {
-            console.log("상품 수정 실패");
-            alert(`상품 수정에 실패했습니다: ${error.message}`);
+            console.error("상품 수정 실패", error);
+            toast.error(`상품 수정에 실패했습니다: ${error?.message || "알 수 없는 오류"}`);
         }
     };
 
     return (
         <ProductContainer>
             <Title>상품 수정 페이지</Title>
+
             <Form onSubmit={handleSubmit(handleEditProduct)}>
                 <FormGroup>
                     <Label htmlFor="name">상품명(필수)</Label>
@@ -224,6 +246,7 @@ const EditProduct = () => {
                             ))}
                         </Select>
                     </AddressSelectContainer>
+
                     {errors.region && (
                         <ErrorMessage style={{ marginTop: "-16px" }}>{errors.region.message}</ErrorMessage>
                     )}
@@ -254,6 +277,7 @@ const EditProduct = () => {
 
                 <FormGroup>
                     <Label>상품 이미지 (선택 사항, 최대 {MAX_IMAGES}개)</Label>
+
                     <ImageUploaderContainer
                         {...getRootProps()}
                         onClick={isImageLimit ? undefined : openImagePicker}
@@ -275,10 +299,10 @@ const EditProduct = () => {
 
                     {(existingImages.length > 0 || newImagePreviewUrls.length > 0) && (
                         <ImagePreviewContainer>
-                            {existingImages.map((url, index) => (
-                                <ImageWrapper key={`existing-${index}-${url}`}>
-                                    <PreviewImage src={`${API_BASE_URL}${url}`} alt={`기존 이미지 ${index + 1}`} />
-                                    <RemoveButton type="button" onClick={() => handleRemoveExistingImage(url)}>
+                            {existingImages.map((img, index) => (
+                                <ImageWrapper key={`existing-${index}-${img.url}`}>
+                                    <PreviewImage src={img.url} alt={`기존 이미지 ${index + 1}`} />
+                                    <RemoveButton type="button" onClick={() => handleRemoveExistingImage(index)}>
                                         X
                                     </RemoveButton>
                                 </ImageWrapper>
@@ -296,7 +320,9 @@ const EditProduct = () => {
                     )}
                 </FormGroup>
 
-                <CustomButton type="submit">상품 수정</CustomButton>
+                <CustomButton type="submit" disabled={isSubmitting}>
+                    상품 수정
+                </CustomButton>
             </Form>
         </ProductContainer>
     );

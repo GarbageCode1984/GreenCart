@@ -3,43 +3,53 @@ import multer from "multer";
 import path from "path";
 import Product from "../models/Product";
 import { authenticate, AuthRequest } from "../middleware/auth";
-import fs from "fs";
 import Conversation from "../models/Conversation";
 import Message from "../models/Message";
+import { uploadBufferToCloudinary } from "../utils/uploadToCloudinary";
+import cloudinary from "../utils/cloudinary";
 
 const router = express.Router();
-
-const uploadDir = path.join(process.cwd(), "uploads");
-if (!fs.existsSync(uploadDir)) {
-    console.log("uploads 폴더가 없어 새로 생성합니다.");
-    fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, uploadDir);
-    },
-    filename: (req, file, cb) => {
-        cb(null, `${file.fieldname}-${Date.now()}${path.extname(file.originalname)}`);
-    },
-});
 
 const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
     const filetypes = /jpeg|jpg|png|gif/;
     const mimetype = filetypes.test(file.mimetype);
     const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
 
-    if (mimetype && extname) {
-        return cb(null, true);
-    }
+    if (mimetype && extname) return cb(null, true);
     cb(new Error("이미지 파일(jpeg, jpg, png, gif)만 업로드할 수 있습니다!"));
 };
 
 const upload = multer({
-    storage: storage,
-    fileFilter: fileFilter,
+    storage: multer.memoryStorage(),
+    fileFilter,
     limits: { fileSize: 5 * 1024 * 1024 },
 });
+
+function safeParseStringArray(input: any): string[] {
+    if (!input) return [];
+    if (Array.isArray(input)) return input.map(String);
+
+    if (typeof input === "string") {
+        try {
+            const parsed = JSON.parse(input);
+            if (Array.isArray(parsed)) return parsed.map(String);
+            return [];
+        } catch {
+            return [];
+        }
+    }
+    return [];
+}
+
+async function deleteCloudinaryImages(publicIds: string[]) {
+    if (!publicIds || publicIds.length === 0) return;
+
+    try {
+        await cloudinary.api.delete_resources(publicIds, { resource_type: "image" });
+    } catch (e) {
+        console.error("Cloudinary delete failed:", e);
+    }
+}
 
 interface CustomRequest extends AuthRequest {
     body: {
@@ -48,6 +58,8 @@ interface CustomRequest extends AuthRequest {
         region: string;
         hashtag?: string;
         description?: string;
+        existingImages?: string;
+        existingImagePublicIds?: string;
     };
     files?: Express.Multer.File[] | { [fieldname: string]: Express.Multer.File[] };
 }
@@ -66,7 +78,7 @@ router.post(
             }
 
             const { name, price, region, hashtag, description } = req.body;
-            const images = req.files;
+            const files = req.files as Express.Multer.File[] | undefined;
 
             if (!name || !price || !region) {
                 return res.status(400).json({ message: "상품명, 가격, 지역은 필수 항목입니다." });
@@ -75,9 +87,12 @@ router.post(
                 return res.status(400).json({ message: "유효하지 않은 숫자입니다." });
             }
 
-            const imageUrls = images
-                ? (images as Express.Multer.File[]).map((file) => `/uploads/${file.filename}`)
+            const uploaded = files?.length
+                ? await Promise.all(files.map((f) => uploadBufferToCloudinary(f.buffer)))
                 : [];
+
+            const imageUrls = uploaded.map((u) => u.url);
+            const imagePublicIds = uploaded.map((u) => u.publicId);
 
             const newProduct = new Product({
                 name,
@@ -86,8 +101,9 @@ router.post(
                 hashtag,
                 description,
                 images: imageUrls,
-                sellerId: sellerId,
-                sellerName: sellerName,
+                imagePublicIds,
+                sellerId,
+                sellerName,
                 status: "FOR_SALE",
             });
 
@@ -118,10 +134,10 @@ router.get("/findAllProduct", async (req: Request, res: Response, next: NextFunc
 
         res.status(200).json({
             message: "상품 목록을 불러왔습니다.",
-            products: products,
+            products,
             currentPage: page,
-            totalPages: totalPages,
-            totalCount: totalCount,
+            totalPages,
+            totalCount,
         });
     } catch (error) {
         console.error("상품 목록 조회 중 에러 발생:", error);
@@ -153,12 +169,7 @@ router.get("/search", async (req: Request, res: Response, next: NextFunction) =>
 
         const products = await Product.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit);
 
-        res.status(200).json({
-            products,
-            currentPage: page,
-            totalPages,
-            totalCount,
-        });
+        res.status(200).json({ products, currentPage: page, totalPages, totalCount });
     } catch (error) {
         console.error("상품 검색 중 에러 발생:", error);
         next(error);
@@ -168,17 +179,11 @@ router.get("/search", async (req: Request, res: Response, next: NextFunction) =>
 router.get("/getProductDetail/:id", async (req: Request, res: Response, next: NextFunction) => {
     try {
         const productId = req.params.id;
-
         const product = await Product.findById(productId);
 
-        if (!product) {
-            return res.status(404).json({ message: "상품을 찾을 수 없습니다." });
-        }
+        if (!product) return res.status(404).json({ message: "상품을 찾을 수 없습니다." });
 
-        res.status(200).json({
-            message: "상품 상세 정보를 불러왔습니다.",
-            product: product,
-        });
+        res.status(200).json({ message: "상품 상세 정보를 불러왔습니다.", product });
     } catch (error) {
         console.error(`상품 ID ${req.params.id} 상세 조회 중 에러 발생:`, error);
         next(error);
@@ -189,43 +194,42 @@ router.patch(
     "/update/:id",
     authenticate,
     upload.fields([{ name: "newImages", maxCount: 5 }]),
-    async (req: AuthRequest, res: Response) => {
+    async (req: CustomRequest, res: Response) => {
         const productId = req.params.id;
         const userId = req.user?.id;
 
-        const { name, price, region, hashtag, description, existingImages } = req.body;
+        const { name, price, region, hashtag, description, existingImages, existingImagePublicIds } = req.body;
 
         const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
-        const images = files?.newImages;
+        const newImages = files?.newImages;
 
-        if (!userId) {
-            return res.status(401).json({ message: "인증 정보가 유효하지 않습니다." });
-        }
+        if (!userId) return res.status(401).json({ message: "인증 정보가 유효하지 않습니다." });
 
         try {
             const product = await Product.findById(productId);
-
-            if (!product) {
-                return res.status(404).json({ message: "상품을 찾을 수 없습니다." });
-            }
+            if (!product) return res.status(404).json({ message: "상품을 찾을 수 없습니다." });
 
             if (product.sellerId.toString() !== userId.toString()) {
                 return res.status(403).json({ message: "상품 수정 권한이 없습니다." });
             }
 
-            const newImagesUrls = images ? images.map((file) => `/uploads/${file.filename}`) : [];
+            const keepImageUrls = safeParseStringArray(existingImages);
+            const keepPublicIds = safeParseStringArray(existingImagePublicIds);
 
-            let existingImageUrls: string[] = [];
-            if (existingImages) {
-                try {
-                    existingImageUrls = JSON.parse(existingImages);
-                    if (!Array.isArray(existingImageUrls)) {
-                        existingImageUrls = [];
-                    }
-                } catch (error) {
-                    console.error(error);
-                    return res.status(400).json({ message: "잘못된 이미지 목록 형식입니다." });
-                }
+            const uploaded = newImages?.length
+                ? await Promise.all(newImages.map((f) => uploadBufferToCloudinary(f.buffer)))
+                : [];
+
+            const newImageUrls = uploaded.map((u) => u.url);
+            const newPublicIds = uploaded.map((u) => u.publicId);
+
+            const prevPublicIds: string[] = Array.isArray((product as any).imagePublicIds)
+                ? (product as any).imagePublicIds
+                : [];
+
+            if (keepPublicIds.length > 0) {
+                const removed = prevPublicIds.filter((id) => !keepPublicIds.includes(id));
+                await deleteCloudinaryImages(removed);
             }
 
             const totalData: any = {};
@@ -235,7 +239,8 @@ router.patch(
             if (hashtag) totalData.hashtag = hashtag;
             if (description) totalData.description = description;
 
-            totalData.images = [...existingImageUrls, ...newImagesUrls];
+            totalData.images = [...keepImageUrls, ...newImageUrls];
+            totalData.imagePublicIds = [...keepPublicIds, ...newPublicIds];
 
             const updatedProduct = await Product.findByIdAndUpdate(
                 productId,
@@ -243,10 +248,7 @@ router.patch(
                 { new: true, runValidators: true },
             );
 
-            res.status(200).json({
-                message: "상품 수정 성공",
-                product: updatedProduct,
-            });
+            res.status(200).json({ message: "상품 수정 성공", product: updatedProduct });
         } catch (error: any) {
             console.error("Product update error:", error);
             res.status(500).json({ message: "상품 수정 중 서버 오류가 발생했습니다.", error: error.message });
@@ -258,41 +260,24 @@ router.delete("/delete/:id", authenticate, async (req: AuthRequest, res: Respons
     const productId = req.params.id;
     const userId = req.user?.id;
 
-    if (!userId) {
-        return res.status(401).json({ message: "인증 정보가 유효하지 않습니다." });
-    }
+    if (!userId) return res.status(401).json({ message: "인증 정보가 유효하지 않습니다." });
 
     try {
         const product = await Product.findById(productId);
-
-        if (!product) {
-            return res.status(204).send();
-        }
+        if (!product) return res.status(204).send();
 
         if (product.sellerId.toString() !== userId) {
             return res.status(403).json({ message: "상품 삭제 권한이 없습니다. (판매자만 삭제 가능)" });
         }
 
-        if (product.images && product.images.length > 0) {
-            product.images.forEach((imagePath) => {
-                try {
-                    const relativePath = imagePath.startsWith("/") ? imagePath.slice(1) : imagePath;
-                    const fullPath = path.join(process.cwd(), relativePath);
+        const publicIds: string[] = Array.isArray((product as any).imagePublicIds)
+            ? (product as any).imagePublicIds
+            : [];
 
-                    fs.unlink(fullPath, (err) => {
-                        if (err) {
-                            console.error("File delete error:", err);
-                        }
-                    });
-                } catch (error) {
-                    console.error("이미지 경로 처리 중 오류:", error);
-                }
-            });
-        }
+        await deleteCloudinaryImages(publicIds);
 
         await Product.findByIdAndDelete(productId);
 
-        // 상품이 삭제될 때 얽혀있는 채팅방과 모든 메시지도 함께 폭파
         const conversations = await Conversation.find({ productId });
         const conversationIds = conversations.map((c) => c._id);
 
@@ -312,7 +297,6 @@ router.get("/myProducts", authenticate, async (req: AuthRequest, res: Response, 
         if (!userId) return res.status(401).json({ message: "인증 정보가 유효하지 않습니다." });
 
         const myProducts = await Product.find({ sellerId: userId }).sort({ createdAt: -1 });
-
         res.status(200).json({ products: myProducts });
     } catch (error) {
         console.error("내 상품 조회 실패:", error);

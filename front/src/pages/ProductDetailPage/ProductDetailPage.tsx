@@ -9,7 +9,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import styled from "styled-components";
 import { createConversation } from "@/api/chat";
-import { SERVER_URL } from "@/constants";
 
 const parseHashtags = (hashtagString: string | undefined): string[] => {
     if (!hashtagString) return [];
@@ -211,10 +210,7 @@ const ProductDetailPage = () => {
                         )}
 
                         {product.images && product.images.length > 0 ? (
-                            <ProductImage
-                                src={`${SERVER_URL}${product.images[currentImageIndex]}`}
-                                alt={product.name}
-                            />
+                            <ProductImage src={`${product.images[currentImageIndex]}`} alt={product.name} />
                         ) : (
                             <NoImagePlaceholder>No Image</NoImagePlaceholder>
                         )}
@@ -231,7 +227,7 @@ const ProductDetailPage = () => {
                             {product.images.map((image, index) => (
                                 <ThumbnailItem
                                     key={index}
-                                    src={`${SERVER_URL}${image}`}
+                                    src={`${image}`}
                                     alt={`Thumbnail ${index}`}
                                     isActive={index === currentImageIndex}
                                     onClick={() => handleImageChange(index)}

@@ -2,7 +2,7 @@ import CustomButton from "@/components/Common/CustomButton";
 import CustomInput from "@/components/Common/CustomInput";
 import CustomTextarea from "@/components/Common/CustomTextarea";
 import { colors } from "@/constants";
-import { Product } from "@/types/types";
+import { ProductForm } from "@/types/types";
 import { ProductSchema } from "@/utils/validation/productSchemas";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useEffect, useState } from "react";
@@ -21,9 +21,9 @@ const AddProduct = () => {
         handleSubmit,
         setValue,
         control,
-        formState: { errors },
-    } = useForm<Product>({
-        resolver: yupResolver(ProductSchema) as unknown as Resolver<Product>,
+        formState: { errors, isSubmitting },
+    } = useForm<ProductForm>({
+        resolver: yupResolver(ProductSchema) as unknown as Resolver<ProductForm>,
         defaultValues: {
             name: "",
             price: 0,
@@ -84,7 +84,7 @@ const AddProduct = () => {
         });
     }, [imageFiles, setValue]);
 
-    const handleAddProduct: SubmitHandler<Product> = async (data: Product) => {
+    const handleAddProduct: SubmitHandler<ProductForm> = async (data: ProductForm) => {
         const formData = new FormData();
         formData.append("name", data.name);
         formData.append("price", data.price.toString());
@@ -217,7 +217,9 @@ const AddProduct = () => {
                     )}
                 </FormGroup>
 
-                <CustomButton type="submit">상품 등록</CustomButton>
+                <CustomButton type="submit" disabled={isSubmitting}>
+                    상품 등록
+                </CustomButton>
             </Form>
         </ProductContainer>
     );

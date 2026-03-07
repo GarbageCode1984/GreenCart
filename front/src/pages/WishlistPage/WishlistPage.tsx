@@ -1,6 +1,6 @@
 import { getWishlist } from "@/api/wishlist";
 import CustomButton from "@/components/Common/CustomButton";
-import { colors, SERVER_URL } from "@/constants";
+import { colors } from "@/constants";
 import { useAuthStore } from "@/store/useAuthStore";
 import { Product } from "@/types/types";
 import { useEffect, useState } from "react";
@@ -62,7 +62,7 @@ const WishlistPage = () => {
                             <ProductCard key={product._id} onClick={() => handleProductClick(product._id)}>
                                 <ImageWrapper>
                                     {product.images?.[0] ? (
-                                        <ProductImage src={`${SERVER_URL}${product.images?.[0]}`} alt={product.name} />
+                                        <ProductImage src={`${product.images?.[0]}`} alt={product.name} />
                                     ) : (
                                         <NoImagePlaceholder>No Image</NoImagePlaceholder>
                                     )}

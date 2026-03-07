@@ -1,5 +1,5 @@
 import { getMyProducts, updateProductStatus } from "@/api/products";
-import { colors, SERVER_URL } from "@/constants";
+import { colors } from "@/constants";
 import { useAuthStore } from "@/store/useAuthStore";
 import { Conversation, Product } from "@/types/types";
 import { useEffect, useState } from "react";
@@ -96,7 +96,7 @@ const MyPage = () => {
                                 <ProductItem key={product._id} $isSoldOut={product.status === "SOLD_OUT"}>
                                     <ImageWrapper onClick={() => navigate(`/products/${product._id}`)}>
                                         {product.images?.[0] ? (
-                                            <ProductImg src={`${SERVER_URL}${product.images[0]}`} alt={product.name} />
+                                            <ProductImg src={product.images[0]} alt={product.name} />
                                         ) : (
                                             <NoImage>No Image</NoImage>
                                         )}
@@ -153,10 +153,7 @@ const MyPage = () => {
                                 <ChatItem key={chat._id} onClick={() => navigate(`/chat/${chat._id}`)}>
                                     <ChatAvatarWrapper>
                                         {chat.productId?.images?.[0] ? (
-                                            <ChatAvatar
-                                                src={`${SERVER_URL}${chat.productId.images[0]}`}
-                                                alt="상품 이미지"
-                                            />
+                                            <ChatAvatar src={chat.productId.images[0]} alt="상품 이미지" />
                                         ) : (
                                             <NoAvatarImage>
                                                 No

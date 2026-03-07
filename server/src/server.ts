@@ -1,16 +1,14 @@
+import "dotenv/config";
 import express from "express";
 import bodyParser from "body-parser";
 import cors from "cors";
 import mongoose from "mongoose";
-import dotenv from "dotenv";
 import userRoutes from "./routes/userRoutes";
 import productRoutes from "./routes/productRoutes";
 import chatRoutes from "./routes/chatRoutes";
 import http from "http";
 import { Server } from "socket.io";
 import path from "path";
-
-dotenv.config();
 
 const app = express();
 const PORT = 5000;

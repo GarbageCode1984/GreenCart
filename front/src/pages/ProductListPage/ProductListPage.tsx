@@ -1,6 +1,6 @@
 import { getAllProducts } from "@/api/products";
 import Pagination from "@/components/Common/Pagination";
-import { colors, SERVER_URL } from "@/constants";
+import { colors } from "@/constants";
 import { Product } from "@/types/types";
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -67,7 +67,7 @@ const ProductListPage = () => {
                         <ProductCard key={product._id} onClick={() => navigate(`/products/${product._id}`)}>
                             <ProductThumbnail>
                                 {product.images?.[0] ? (
-                                    <ProductImage src={`${SERVER_URL}${product.images[0]}`} alt={product.name} />
+                                    <ProductImage src={`${product.images[0]}`} alt={product.name} />
                                 ) : (
                                     <NoImagePlaceholder>No Image</NoImagePlaceholder>
                                 )}

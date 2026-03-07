@@ -22,13 +22,6 @@ const ChatPage = () => {
     const socket = useRef<Socket | null>(null);
     const scrollRef = useRef<HTMLDivElement>(null);
 
-    const getProductImageUrl = (path: string | undefined) => {
-        if (!path) return undefined;
-        if (path.startsWith("http")) return path;
-        const cleanPath = path.startsWith("/") ? path : `/${path}`;
-        return `${SERVER_URL}${cleanPath}`;
-    };
-
     // 소켓 초기화 및 사용자 등록
     useEffect(() => {
         socket.current = io(SERVER_URL, {
@@ -166,11 +159,8 @@ const ChatPage = () => {
                             $active={c._id === currentChat?._id}
                             onClick={() => navigate(`/chat/${c._id}`)}
                         >
-                            {/* <Avatar src={getProductImageUrl(c.productId?.images?.[0]) || ""} alt="product" />
-                             */}
-
                             {c.productId?.images?.[0] ? (
-                                <Avatar src={getProductImageUrl(c.productId.images[0])} alt="product" />
+                                <Avatar src={c.productId.images[0]} alt="product" />
                             ) : (
                                 <NoAvatarImage>
                                     NO
@@ -178,6 +168,7 @@ const ChatPage = () => {
                                     IMAGE
                                 </NoAvatarImage>
                             )}
+
                             <ConversationInfo>
                                 <ChatName>{c.productId?.name || "알 수 없는 상품"}</ChatName>
                                 <LastMessage>대화를 확인해보세요</LastMessage>
@@ -194,10 +185,7 @@ const ChatPage = () => {
                             <HeaderLeft>
                                 <HeaderProductInfo onClick={() => navigate(`/products/${currentChat.productId?._id}`)}>
                                     {currentChat.productId?.images?.[0] ? (
-                                        <HeaderImg
-                                            src={getProductImageUrl(currentChat.productId.images[0])}
-                                            alt="product"
-                                        />
+                                        <HeaderImg src={currentChat.productId.images[0]} alt="product" />
                                     ) : (
                                         <NoHeaderImage>
                                             NO

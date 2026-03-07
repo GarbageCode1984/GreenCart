@@ -27,7 +27,25 @@ export interface Product {
     city?: string;
     hashtag: string;
     description?: string;
-    images: (File | undefined)[] | null;
+    images: string[];
+    imagePublicIds: string[];
+    sellerId: string;
+    sellerName: string;
+    status: string;
+}
+
+export interface ProductForm {
+    createdAt: string | number | Date;
+    _id: string;
+    name: string;
+    price: number;
+    province?: string;
+    city?: string;
+    region: string;
+    hashtag?: string;
+    description?: string;
+    images: File[] | null;
+    imagePublicIds: string[];
     sellerId: string;
     sellerName: string;
     status: string;

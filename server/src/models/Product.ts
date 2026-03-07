@@ -7,6 +7,7 @@ export interface Product {
     hashtag?: string;
     description?: string;
     images: string[];
+    imagePublicIds: [{ type: String; default: [] }];
     sellerId: mongoose.Types.ObjectId;
     sellerName: string;
     status: "FOR_SALE" | "SOLD_OUT";
@@ -22,6 +23,10 @@ const ProductSchema = new mongoose.Schema<Product>(
         hashtag: { type: String },
         description: { type: String, default: "" },
         images: { type: [String], default: [] },
+        imagePublicIds: {
+            type: [String],
+            default: [],
+        },
         sellerId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
         sellerName: { type: String, required: true },
         status: {
@@ -32,7 +37,7 @@ const ProductSchema = new mongoose.Schema<Product>(
     },
     {
         timestamps: true,
-    }
+    },
 );
 
 ProductSchema.index({ name: "text", hashtag: "text" });

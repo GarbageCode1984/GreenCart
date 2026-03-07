@@ -5,7 +5,6 @@ import { colors } from "@/constants";
 import { getAllProducts } from "@/api/products";
 import CustomButton from "@/components/Common/CustomButton";
 import { Product } from "@/types/types";
-import { SERVER_URL } from "@/constants";
 
 const CATEGORIES = [
     { name: "디지털 기기", icon: "📱", keyword: "디지털" },
@@ -90,7 +89,7 @@ const MainPage = () => {
                                 <ProductThumbnail>
                                     {product.images?.[0] ? (
                                         <ProductImage
-                                            src={`${SERVER_URL}${product.images[0]}`}
+                                            src={product.images[0]}
                                             alt={product.name}
                                             onError={(e) => {
                                                 (e.target as HTMLImageElement).style.display = "none";
